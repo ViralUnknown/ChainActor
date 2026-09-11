@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+
+# Environment and secrets
+.env
+*.env
+.env.*
+!.env.example
+
+# Apify / Crawlee local storage
+storage/
+**/storage/
+
+# Logs & temp files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+Thumbs.db

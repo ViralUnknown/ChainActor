@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "X Bulk Unblocker",
+  "version": "2.0",
+  "description": "Unblock multiple X accounts automatically. Close popup—keeps running.",
+  "permissions": ["scripting", "storage", "tabs"],
+  "host_permissions": ["https://x.com/*", "https://twitter.com/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon.png",
+      "48": "icon.png",
+      "128": "icon.png"
+    }
+  }
+}

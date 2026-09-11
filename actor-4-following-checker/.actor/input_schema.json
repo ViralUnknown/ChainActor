@@ -1,0 +1,57 @@
+{
+    "title": "Actor 4: Following Checker Input",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "myUsername": {
+            "title": "Your X / Twitter Username",
+            "type": "string",
+            "description": "Your account username without '@'. E.g. 'elonmusk'.",
+            "editor": "textfield"
+        },
+        "maxFollowingToScan": {
+            "title": "Max Following Accounts to Scan",
+            "type": "integer",
+            "description": "Maximum number of followed accounts to scan from your profile.",
+            "default": 1000
+        },
+        "cookies": {
+            "title": "Session Cookies (JSON or Netscape String)",
+            "type": "array",
+            "description": "X.com session cookies to access following list.",
+            "prefill": [],
+            "editor": "json"
+        },
+        "auth_token": {
+            "title": "auth_token (Optional direct cookie)",
+            "type": "string",
+            "description": "Direct X.com auth_token value.",
+            "editor": "textfield"
+        },
+        "ct0": {
+            "title": "ct0 (Optional direct cookie)",
+            "type": "string",
+            "description": "Direct X.com ct0 value.",
+            "editor": "textfield"
+        },
+        "delayBetweenScrolls": {
+            "title": "Delay Between Scrolls (ms)",
+            "type": "integer",
+            "description": "Delay between scroll actions while scanning following list.",
+            "default": 1800
+        },
+        "supabaseUrl": {
+            "title": "Supabase Project URL",
+            "type": "string",
+            "description": "Supabase project URL.",
+            "editor": "textfield"
+        },
+        "supabaseAnonKey": {
+            "title": "Supabase Anon Key",
+            "type": "string",
+            "description": "Supabase API key.",
+            "editor": "textfield"
+        }
+    },
+    "required": ["myUsername"]
+}

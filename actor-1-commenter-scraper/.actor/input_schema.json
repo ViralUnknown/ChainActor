@@ -1,0 +1,62 @@
+{
+    "title": "Actor 1: Commenter Scraper Input",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "maxPosts": {
+            "title": "Max Posts to Scrape",
+            "type": "integer",
+            "description": "Number of top posts to scrape commenters from. Actor will gracefully finish scraping all commenters of the Nth post before exiting.",
+            "default": 10,
+            "minimum": 1
+        },
+        "verificationFilter": {
+            "title": "Commenter Verification Filter",
+            "type": "string",
+            "description": "Select whether to scrape verified commenters, unverified commenters, or both.",
+            "default": "verified",
+            "editor": "select",
+            "enum": ["verified", "unverified", "both"],
+            "enumTitles": ["Verified accounts only", "Unverified accounts only", "Both (all commenters)"]
+        },
+        "cookies": {
+            "title": "Session Cookies (JSON or Netscape String)",
+            "type": "array",
+            "description": "X.com session cookies. Provide cookie JSON array or cookie strings.",
+            "prefill": [],
+            "editor": "json"
+        },
+        "auth_token": {
+            "title": "auth_token (Optional direct cookie)",
+            "type": "string",
+            "description": "Direct X.com auth_token cookie value.",
+            "editor": "textfield"
+        },
+        "ct0": {
+            "title": "ct0 (Optional direct cookie)",
+            "type": "string",
+            "description": "Direct X.com ct0 cookie value.",
+            "editor": "textfield"
+        },
+        "delayBetweenScrolls": {
+            "title": "Delay Between Scrolls (ms)",
+            "type": "integer",
+            "description": "Delay in milliseconds between scroll actions inside post comment section.",
+            "default": 1800,
+            "minimum": 500
+        },
+        "supabaseUrl": {
+            "title": "Supabase Project URL",
+            "type": "string",
+            "description": "Supabase project URL (overrides SUPABASE_URL env var).",
+            "editor": "textfield"
+        },
+        "supabaseAnonKey": {
+            "title": "Supabase Anon / Service Key",
+            "type": "string",
+            "description": "Supabase API key (overrides SUPABASE_ANON_KEY env var).",
+            "editor": "textfield"
+        }
+    },
+    "required": []
+}

@@ -1,0 +1,189 @@
+<div class="@wide:block w-full" data-testid="dm-conversation-panel">
+    <div class="relative flex h-full flex-1">
+        <div class="relative flex h-full grow flex-col" data-testid="dm-conversation-content">
+            <div class="w-full p-4 gap-4 flex flex-row items-center justify-between absolute top-0 right-0 left-0 z-10"
+                data-testid="dm-conversation-header">
+                <div class="absolute inset-0 -z-10">
+                    <div class="pointer-events-none absolute inset-0"
+                        style="backdrop-filter: blur(0px); mask-image: linear-gradient(360deg, transparent 0%, black 100%); opacity: 1; z-index: 0;">
+                    </div>
+                    <div class="pointer-events-none absolute inset-0"
+                        style="backdrop-filter: blur(2px); mask-image: linear-gradient(360deg, transparent 0%, black 100%); opacity: 0.975; z-index: 1;">
+                    </div>
+                    <div class="pointer-events-none absolute inset-0"
+                        style="backdrop-filter: blur(4px); mask-image: linear-gradient(360deg, transparent 0%, black 100%); opacity: 0.95; z-index: 2;">
+                    </div>
+                    <div class="pointer-events-none absolute inset-0"
+                        style="backdrop-filter: blur(6px); mask-image: linear-gradient(360deg, transparent 0%, black 100%); opacity: 0.925; z-index: 3;">
+                    </div>
+                    <div class="pointer-events-none absolute inset-0"
+                        style="backdrop-filter: blur(8px); mask-image: linear-gradient(360deg, transparent 0%, black 100%); opacity: 0.9; z-index: 4;">
+                    </div>
+                    <div class="pointer-events-none absolute inset-0"
+                        style="background: linear-gradient(360deg, transparent 0%, hsl(var(--color-background)) 100%);">
+                    </div>
+                </div>
+                <div class="flex flex-row items-center gap-2"><a
+                        class="flex cursor-pointer flex-row items-center gap-2 text-inherit no-underline hover:no-underline"
+                        href="https://x.com/wemma732">
+                        <div class="min-size flex overflow-hidden rounded-full bg-gray-300 min-h-12 min-w-12 size-12">
+                            <img alt="user avatar" class="size-full brightness-100 [dynamic-range-limit:standard]"
+                                loading="lazy"
+                                src="https://pbs.twimg.com/profile_images/2058968009725624322/-fGGkl0-_200x200.jpg"
+                                srcset="https://pbs.twimg.com/profile_images/2058968009725624322/-fGGkl0-_mini.jpg 24w, https://pbs.twimg.com/profile_images/2058968009725624322/-fGGkl0-_normal.jpg 48w, https://pbs.twimg.com/profile_images/2058968009725624322/-fGGkl0-_bigger.jpg 73w, https://pbs.twimg.com/profile_images/2058968009725624322/-fGGkl0-_x96.jpg 96w, https://pbs.twimg.com/profile_images/2058968009725624322/-fGGkl0-_200x200.jpg 200w, https://pbs.twimg.com/profile_images/2058968009725624322/-fGGkl0-_400x400.jpg 400w"
+                                sizes="48px" draggable="false">
+                        </div>
+                        <div class="flex flex-col">
+                            <div class="overflow-hidden flex items-center gap-1" data-testid="dm-conversation-username">
+                                <div class="flex max-w-full shrink-0 items-center gap-1">
+                                    <div
+                                        class="font-chirp max-w-full whitespace-pre-wrap break-all text-text line-clamp-1 text-headline2 font-medium">
+                                        Emma Rose 🌹</div>
+                                    <div class="shrink-0">
+                                        <div
+                                            class="font-chirp max-w-full whitespace-pre-wrap break-words text-text text-headline2 font-normal">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a></div>
+                <div class="flex items-center gap-2"><button
+                        class="gap-1 inline-flex items-center border border-solid font-bold has-[svg:only-child]:px-0 transition disabled:pointer-events-none focus-visible:outline disabled:opacity-50 justify-center h-10 min-w-10 px-6 [&amp;&gt;svg]:size-[22px] text-body bg-gray-0 text-text border-transparent hover:bg-gray-50 rounded-full w-12 h-12 [&amp;&gt;svg]:size-6 shrink-0"
+                        data-testid="dm-conversation-more-button"><svg xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor" data-icon="icon-more" viewBox="0 0 24 24" width="1em" height="1em"
+                            display="flex" role="img">
+                            <path
+                                d="M3 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm7 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z">
+                            </path>
+                        </svg></button></div>
+            </div>
+            <div class="isolate flex-1 overflow-hidden" data-testid="dm-message-list-container">
+                <div class="relative h-full" data-testid="dm-message-list">
+                    <div class="scrollbar-thin-custom !h-full w-full" tabindex="0"
+                        style="height: 100vh; overflow: hidden auto; overflow-anchor: none; width: 100%;">
+                        <div style="height: 84px;"></div>
+                        <div style="height: 20px;"></div>
+                        <ul
+                            style="overflow-anchor: none; flex: 0 0 auto; position: relative; visibility: hidden; width: 100%; height: 264px;">
+                            <li style="position: absolute; width: 100%; left: 0px; top: 0px; visibility: visible;">
+                                <div class="">
+                                    <div>
+                                        <div class="flex flex-col items-center px-4 py-8">
+                                            <div class="mb-4">
+                                                <div
+                                                    class="min-size flex overflow-hidden rounded-full bg-gray-300 min-h-16 min-w-16 size-16">
+                                                    <img alt="user avatar"
+                                                        class="size-full brightness-100 [dynamic-range-limit:standard]"
+                                                        loading="lazy"
+                                                        src="https://pbs.twimg.com/profile_images/2058968009725624322/-fGGkl0-_400x400.jpg"
+                                                        srcset="https://pbs.twimg.com/profile_images/2058968009725624322/-fGGkl0-_mini.jpg 24w, https://pbs.twimg.com/profile_images/2058968009725624322/-fGGkl0-_normal.jpg 48w, https://pbs.twimg.com/profile_images/2058968009725624322/-fGGkl0-_bigger.jpg 73w, https://pbs.twimg.com/profile_images/2058968009725624322/-fGGkl0-_x96.jpg 96w, https://pbs.twimg.com/profile_images/2058968009725624322/-fGGkl0-_200x200.jpg 200w, https://pbs.twimg.com/profile_images/2058968009725624322/-fGGkl0-_400x400.jpg 400w"
+                                                        sizes="64px" draggable="false">
+                                                </div>
+                                            </div>
+                                            <div class="overflow-hidden flex items-center gap-1">
+                                                <div class="flex max-w-full shrink-0 items-center gap-1">
+                                                    <div
+                                                        class="font-chirp max-w-full whitespace-pre-wrap break-all text-text line-clamp-1 text-headline2 font-bold">
+                                                        Emma Rose 🌹</div>
+                                                    <div class="shrink-0">
+                                                        <div
+                                                            class="font-chirp max-w-full whitespace-pre-wrap break-words text-text text-headline2 font-normal">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div
+                                                class="font-chirp max-w-full whitespace-pre-wrap break-words text-gray-700 text-body font-normal">
+                                                @wemma732</div>
+                                            <div
+                                                class="font-chirp max-w-full whitespace-pre-wrap break-words text-gray-700 text-body font-normal">
+                                                <span
+                                                    class="font-chirp max-w-full whitespace-pre-wrap break-words text-text text-body font-bold">18</span>
+                                                Followers · Joined December 2009
+                                            </div><a class="mt-6" href="https://x.com/wemma732" target="_blank"><button
+                                                    class="gap-1 inline-flex items-center border border-solid font-bold has-[svg:only-child]:px-0 transition disabled:pointer-events-none focus-visible:outline disabled:opacity-50 justify-center h-9 min-w-9 px-4 [&amp;&gt;svg]:size-5 text-body bg-text border-transparent outline-text text-background rounded-full active:bg-mix-background active:bg-mix-amount-15 focus-visible:bg-mix-background focus-visible:bg-mix-amount-10 hover:bg-mix-background hover:bg-mix-amount-10">
+                                                    <div
+                                                        class="font-chirp max-w-full whitespace-pre-wrap break-words text-inherit line-clamp-1 text-[length:inherit] font-bold">
+                                                        View Profile</div>
+                                                </button></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                        <div style="height: 92px;"></div>
+                    </div>
+                    <div class="@wide:relative"></div>
+                </div>
+            </div>
+            <div class="absolute bottom-0 left-1/2 isolate z-10 w-full max-w-5xl -translate-x-1/2 p-4"
+                data-testid="dm-composer-container">
+                <div>
+                    <div class="relative mx-auto flex flex-col gap-2"><input type="file" class="hidden" multiple=""
+                            data-testid="dm-composer-file-input">
+                        <div class="flex w-full items-end justify-end">
+                            <div class="flex items-end gap-2" style="width: 546px;">
+                                <div class="shrink-0 overflow-hidden" style="width: 160px;">
+                                    <div class="flex shrink-0 items-end gap-2">
+                                        <div class="shrink-0 overflow-hidden"
+                                            style="width: 0px; opacity: 0; margin-right: -8px; transform: scale(0.5);">
+                                            <button
+                                                class="gap-1 inline-flex items-center border border-solid font-bold has-[svg:only-child]:px-0 transition disabled:pointer-events-none focus-visible:outline disabled:opacity-50 justify-center h-10 min-w-10 px-6 [&amp;&gt;svg]:size-[22px] text-body bg-gray-0 text-text border-transparent hover:bg-gray-50 rounded-full h-12 w-12"
+                                                aria-label="Cancel voice note"><svg xmlns="http://www.w3.org/2000/svg"
+                                                    fill="currentColor" data-icon="icon-close" viewBox="0 0 24 24"
+                                                    width="1em" height="1em" display="flex" role="img">
+                                                    <path
+                                                        d="M10.59 12L4.54 5.96l1.42-1.42L12 10.59l6.04-6.05 1.42 1.42L13.41 12l6.05 6.04-1.42 1.42L12 13.41l-6.04 6.05-1.42-1.42L10.59 12z">
+                                                    </path>
+                                                </svg></button>
+                                        </div>
+                                        <div class="flex items-end gap-2" style="opacity: 1; transform: none;"><button
+                                                class="gap-1 inline-flex items-center border border-solid font-bold has-[svg:only-child]:px-0 transition disabled:pointer-events-none focus-visible:outline disabled:opacity-50 justify-center h-10 min-w-10 px-6 [&amp;&gt;svg]:size-[22px] text-body bg-gray-0 text-text border-transparent hover:bg-gray-50 rounded-full h-12 w-12"
+                                                data-testid="dm-composer-attachment-button" disabled=""><svg
+                                                    xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                                                    data-icon="icon-plus" viewBox="0 0 24 24" width="1em" height="1em"
+                                                    display="flex" role="img">
+                                                    <path d="M11 11V4h2v7h7v2h-7v7h-2v-7H4v-2h7z"></path>
+                                                </svg></button><button
+                                                class="gap-1 inline-flex items-center border border-solid font-bold has-[svg:only-child]:px-0 transition disabled:pointer-events-none focus-visible:outline disabled:opacity-50 justify-center h-10 min-w-10 px-6 [&amp;&gt;svg]:size-[22px] text-body bg-gray-0 text-text border-transparent hover:bg-gray-50 rounded-full h-12 w-12"
+                                                data-testid="dm-composer-gif-button" disabled=""><svg
+                                                    xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                                                    data-icon="icon-gif-pill-stroke" viewBox="0 0 24 24" width="1em"
+                                                    height="1em" display="flex" role="img">
+                                                    <path
+                                                        d="M3 5.5C3 4.119 4.12 3 5.5 3h13C19.88 3 21 4.119 21 5.5v13c0 1.381-1.12 2.5-2.5 2.5h-13C4.12 21 3 19.881 3 18.5v-13zM5.5 5c-.28 0-.5.224-.5.5v13c0 .276.22.5.5.5h13c.28 0 .5-.224.5-.5v-13c0-.276-.22-.5-.5-.5h-13zM18 10.711V9.25h-3.74v5.5h1.44v-1.719h1.7V11.57h-1.7v-.859H18zM11.79 9.25h1.44v5.5h-1.44v-5.5zm-3.07 1.375c.34 0 .77.172 1.02.43l1.03-.86c-.51-.601-1.28-.945-2.05-.945C7.19 9.25 6 10.453 6 12s1.19 2.75 2.72 2.75c.85 0 1.54-.344 2.05-.945v-2.149H8.38v1.032H9.4v.515c-.17.086-.42.172-.68.172-.76 0-1.36-.602-1.36-1.375 0-.688.6-1.375 1.36-1.375z">
+                                                    </path>
+                                                </svg></button><button
+                                                class="gap-1 inline-flex items-center border border-solid font-bold has-[svg:only-child]:px-0 transition disabled:pointer-events-none focus-visible:outline disabled:opacity-50 justify-center h-10 min-w-10 px-6 [&amp;&gt;svg]:size-[22px] text-body bg-gray-0 text-text border-transparent hover:bg-gray-50 rounded-full h-12 w-12"
+                                                data-testid="dm-composer-emoji-button"><svg
+                                                    xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                                                    data-icon="icon-smile-circle-flap" viewBox="0 0 18 18" width="1em"
+                                                    height="1em" display="flex" role="img">
+                                                    <path fill="currentColor"
+                                                        d="M8.37435 7.12435C8.37435 8.27518 7.81435 9.20768 7.12435 9.20768C6.43435 9.20768 5.87435 8.27435 5.87435 7.12435C5.87435 5.97435 6.43435 5.04102 7.12435 5.04102C7.81435 5.04102 8.37435 5.97268 8.37435 7.12435ZM12.541 7.12435C12.541 8.27518 11.981 9.20768 11.291 9.20768C10.601 9.20768 10.041 8.27435 10.041 7.12435C10.041 5.97435 10.601 5.04102 11.291 5.04102C11.981 5.04102 12.541 5.97268 12.541 7.12435ZM17.6852 7.42768C17.7278 7.74144 17.7492 8.05771 17.7493 8.37435C17.7493 12.7335 12.5327 17.7035 7.95768 17.7035H7.50518C3.54102 17.5293 0.666016 13.9577 0.666016 9.20768C0.668442 6.94304 1.56914 4.77184 3.17049 3.17049C4.77184 1.56914 6.94304 0.668442 9.20768 0.666016C13.5068 0.666016 17.151 3.57268 17.6843 7.42685M9.20768 2.33268C7.38493 2.33467 5.6374 3.05963 4.34852 4.34852C3.05963 5.6374 2.33467 7.38493 2.33268 9.20768C2.33268 12.4743 4.11935 15.8593 7.53352 16.036C8.0806 15.9974 8.59342 15.7554 8.97101 15.3577C9.21219 15.0077 9.38339 14.6144 9.47518 14.1993C9.38685 14.2077 9.29768 14.2077 9.20768 14.2077C6.14185 14.2077 5.12435 11.2635 5.08435 11.1377L6.66768 10.6102L5.87435 10.8743L6.66351 10.606C6.84734 11.1448 7.18753 11.6167 7.64067 11.9613C8.09381 12.3059 8.63935 12.5078 9.20768 12.541C9.47439 12.5429 9.73969 12.5021 9.99351 12.4202C10.2212 11.8096 10.5835 11.2582 11.0535 10.8068C11.8317 10.1345 12.7858 9.69848 13.8035 9.55018C14.3575 9.4738 14.8874 9.27449 15.3543 8.96685C15.7434 8.59964 15.9811 8.10032 16.021 7.56685C15.5585 4.57768 12.646 2.33102 9.20768 2.33102V2.33268Z">
+                                                    </path>
+                                                </svg></button></div>
+                                    </div>
+                                </div>
+                                <form class="relative min-w-0 flex-1" data-testid="dm-composer-form">
+                                    <div class="text-body flex flex-col overflow-hidden rounded-[24px] bg-gray-50 py-2 leading-6"
+                                        data-testid="dm-composer-input-container">
+                                        <div class="flex w-full justify-end px-2"><textarea placeholder="Message"
+                                                data-testid="dm-composer-textarea"
+                                                class="border-box font-chirp text-text m-0 w-full resize-none bg-transparent font-normal outline-hidden disabled:opacity-50 placeholder:text-gray-700 scrollbar-thin-custom max-h-60 flex-1 px-2 py-1"
+                                                rows="1" style="height: 32px;"></textarea>
+                                            <div class="flex flex-col items-center gap-2 self-end"></div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="via-background/80 to-background pointer-events-none absolute start-0 end-3 bottom-0 bg-linear-to-b from-transparent"
+                style="height: 80px;"></div>
+        </div>
+    </div>
+</div>

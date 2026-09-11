@@ -1,0 +1,23 @@
+{
+    "$schema": "https://apify.com/schemas/v1/actor.ide.json",
+    "actorSpecification": 1,
+    "name": "x-follower-checker",
+    "title": "X Follower Checker Actor",
+    "description": "Scrapes follower count, following count, and verified status for a list of X / Twitter handles using Brave Browser with session cookie auth.",
+    "version": "1.0",
+    "meta": {
+        "templateId": "js-start",
+        "generatedBy": "Antigravity with Claude Sonnet 4.6"
+    },
+    "inputSchema": "./input_schema.json",
+    "outputSchema": "./output_schema.json",
+    "storages": {
+        "dataset": "./dataset_schema.json"
+    },
+    "dockerfile": "../Dockerfile",
+    "defaultRunOptions": {
+        "build": "latest",
+        "memoryMbytes": 1536,
+        "timeoutSecs": 3600
+    }
+}

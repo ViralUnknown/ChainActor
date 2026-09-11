@@ -1,0 +1,14 @@
+<div class="DraftEditor-editorContainer">
+    <div aria-activedescendant="typeaheadFocus-0.35305700656820005" aria-autocomplete="list"
+        aria-controls="typeaheadDropdownWrapped-5" aria-describedby="placeholder-amuk7" aria-label="Post text"
+        aria-multiline="true" class="notranslate public-DraftEditor-content" contenteditable="true"
+        data-testid="tweetTextarea_0" role="textbox" spellcheck="true" tabindex="0" no-focustrapview-refocus="true"
+        style="outline: none; user-select: text; white-space: pre-wrap; overflow-wrap: break-word;">
+        <div data-contents="true">
+            <div class="" data-block="true" data-editor="amuk7" data-offset-key="dsaf7-0-0">
+                <div data-offset-key="dsaf7-0-0" class="public-DraftStyleDefault-block public-DraftStyleDefault-ltr">
+                    <span data-offset-key="dsaf7-0-0"><br data-text="true"></span></div>
+            </div>
+        </div>
+    </div>
+</div>

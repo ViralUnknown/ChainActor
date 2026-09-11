@@ -1,0 +1,89 @@
+(Transcribed by TurboScribe. Go Unlimited to remove this message.)
+
+I have created a full, let's say structure of what I had in mind, but they still require my input at some points, but okay, what I'm trying to create is a full chain of automations. I have created a comment scripter, which scripts verified, unverified, or put usernames from verified, sorry, from the commenters on the list of post links I give to it. Well, I also had in mind the idea of creating a, or an actor on Apify, A-P-I-F-Y, that logs into my account using the cookie session of an active browser or an active session in one of my browser. 
+
+Now, everything I'll be telling you runs would run under Chrome and make sure you use a directory, even though it's temporary, that holds the full capability of Brave Shields. So I've created the actor that scripts the usernames of commenters of my posts, but I don't want to be the one going to select each of those links to the actor. So I decided of what if, okay, I decided on creating another actor that uses my account section, scrolls on posts, scrolls on my timeline, my home feed, and checks the comment count of the posts. 
+
+If it's above or below, if it's above, sorry, not below, if it's above a certain amount, I'll be inputting on saving on that actor. In the inputs section, it should enter the profile of that or the author of that post, extract or confirm if the account based in is Nigeria or Africa, nothing outside those two. Even if it's South Africa, do not count it in. 
+
+North Africa, do not count it in. It's either Nigeria or the word Africa. It confirms if it has those characters or anyhow it used to confirm or the words are there as a whole, not characters, so it doesn't get confused. 
+
+It gets the words, confirm it. If it confirms it, it goes back and copy or get, I don't know, it should click share, copy the posts. I don't know if Playwright copies the posts or it uses the source code to extract where the link is. 
+
+I don't know which one would be better, but anyways, it gets the link of that post. Now, this is where the problem might occur. It is definitely going to send it to the data set of Appify, but my problem is I do not want to touch a whole process of what I have in mind. 
+
+So, I was thinking if there could be a way you could suggest those data should be pushed or kind of gets to, so it can get, would I say, extracted by another runner or another actor, yes. So, that's what I was thinking. So, if the commenter gets the post link and confirms the necessary, it pushes it to, I don't know what you should suggest we use. 
+
+I was thinking let's use Superbase because there will be some intellectual changes to be made like further, as far as we go through the script. So, I was thinking we could use Superbase for stuff like that. So, the whole surface level of who I want to view this. 
+
+The actor goes script the post that reached the level of comments and likes. If it passes that range, it scripts the, it doesn't script the commenters, please, to point that out. It doesn't script the commenters. 
+
+What it does there is just to go to the, get the link. Maybe it can still drop it on the data set. Yes, but it pushes the link to the Superbase.
+
+When it pushes the link to Superbase and Superbase gets, then the other actor, which is still, will now get that link, go into each of the post links sent and script the unique, verified user, like the commenter's username. So, all the people that have commented that are verified under that particular post would get scripted. And when that's scripted, it will now push those information to another actor, which is the actor that checks the about information.
+
+Okay. Now, that user, that actor uses the, that actor mainly, I've used it already, but it's not automated right now. So, it uses multiple of my cookie sessions and gets the username.
+
+Sorry. Gets the username of the, like the target username, then uses the, would I say parallel functionality of rewrites. And that checks for each of those username, check the about information.
+
+So, you don't need to worry about, I just need a, like an explanation of how I can build that. Would I need an external source, like Superbase or can Appify build it itself. So, when the, when the actor that scripts the accounts based on the connected via information of those target usernames that was gotten from the comment scripter, when it's done checking each of those usernames, it sends the data or it kind of only filter out Nigerian accounts that has anything to do with Nigeria.
+
+Even though it is, either it has the word Nigeria in the, in the about, in the accounts based in site or section, or it has in the device. So, if it's like, there are two sections, account based in could come as Nigeria and there's another one connected via could come as Nigeria app store or Nigeria Android store. So, even if one of them comes up, you still add the username to the list. 
+
+So, I don't know what to use to filter that information. So, it pushes the, only the username that comes out or comes out from that, from Nigeria to another actor, which would be follower checker. Now, follower checker would check the, follower checker would check the follower count of all of those accounts or those targeted usernames.
+
+When it's done checking the follower and following count, I have already built that one as well. Now, what I have not built is the functionality because I would have to sort it manually myself. Now, for you to get it and sort it from the least followed to the most followed, from the least followed to the most followed. 
+
+That's what it should do. So, when it gets the follower count of follower and following count of those accounts, it gets the, okay, it sorts the follower and following count from least followed. I mean, like follower and following count from the least of, under the follower count, it sorts it by the least followed down to the most followed.
+
+So, the ones that, the username that have or has the least amount of followers come first, then the ones that have the most amount of followers goes last. Now, before it pushes the usernames of those followers or those usernames that it gets from the sorted version of the actor, it removes all. Yes, it totally removes any username that doesn't have this factor.
+
+Number one, if the follower count is not up to 200, it deletes them. So, if the follower count are not up to 200, it removes them. It doesn't send, it either removes them or doesn't send those ones.
+
+And if the follower count and following count ratio is, let's say, the followers, let's say the followers are 200 and the person is following 800, it deletes the username. Now, I don't know what ratio that is, but if it happens vice versa, if the follower count is 800 and the person is following 200, it deletes that one as well. So, use that ratio count for every account or for all the username. 
+
+So, you know what, either you are deleting or you are not, but it should not be sent. I don't know if you should not delete it, but make sure it doesn't get sent to the next actor or if the actor is the one picking up, it should not pick that particular list up. So, I don't know where that logic would lie. 
+
+Is it lying between the previous actor that pushes the result, that brings the result, or is it lying between the next actor that gets the result? I don't want to say things I don't know of because I need this chain reaction or chain flow to go as smooth as possible. Okay. So, when the next actor, which would be the follower actor, this actor would use my cookie section.
+
+I've already viewed this actor. So, it's just you get the way of life. This actor would follow each of these accounts. 
+
+So, I would have to set the amount it would follow and what time and all those stuff. But, let me just let you know. It would be following its username between 10 to 15 minutes of this chosen hour.
+
+So, between 10 to 15 minutes, it would follow. Okay. I think before it follows, I would need another actor in between that path, in between that follow account.
+
+Before it follows, I would need another actor between there. So, the actor that would be there would always also log into my cookie section, go to my following section, and get all the usernames I am following. Yes, to get all the usernames I am following. 
+
+So, I don't have to waste my credits and time on entering pages of usernames or account usernames I have already followed. This would help decrease the wasted time. So, when it goes to that following page, gets the usernames of all the accounts I have followed. 
+
+Even if they have not followed back, just get their own username and minus it from the given list of usernames. Okay, it would get the list of usernames I am following and subtract them from the list I was given to it. So, anything that is going to the next actor, which is the one that follows those accounts, it makes sure I am not already following those accounts.
+
+Now, there is something that might happen, but I want to make sure it gets it clear. The list of accounts it gets, remember it is being sorted by list follow account to most follow account. So, any list of accounts it is getting, it should not change the arrangement despite removing the ones that I am following already. 
+
+I believe you get my point. So, any list it is doing, if number 1, number 2, number 3, number 4. So, among those 4, if I am following number 3, it should remove number 3. So, it goes 1, 2, 4. It should not switch the whole thing around. So, it can still be list followed or list follow account to most follow accounts in the usernames before sending it to the follower actor which follows each of those accounts.
+
+Now, there is another one called blocker actor. That blocker actor, it would run on a calculative scale. This is how I want it to run. 
+
+So, I don't know, I have not built that one yet. You don't have to tell me how to build it. You don't have to give me the code or anything. 
+
+Just explain how it should work. Okay, for that blocker actor, if we finally decide on using whatever, it checks the username that I am following that is not following me back. So, any username without the indicator follows you. 
+
+In quotes, without the indicator follows you. That is an indicator that this account is following me when it goes to my following section. But if that account is not with the indicator follows you and the username, it notices that this username has been followed for 5 days now and this username refused to follow me back.
+
+That means it did not get the indicator follows you. It now knows that this username is not following me back for almost 5 days. If it is below 5 days, it doesn't touch that one.
+
+So, I don't know where that logic would go to. Where the calculation of keeping track of the days I follow this account so that it knows that this account was followed for so many days and then it now blocks those accounts. Yes, it now blocks those accounts. 
+
+So, that would be the end of the chain. Yes, from my actor going to go around and check the necessary meets from my home line, check if this poster meets the necessary amount of engaged reactions, maybe comments and likes. Then it checks the profile of the account about information. 
+
+Let's say it opens another tab using the information it gets from that post. Then it notices that there is href slash the username. Then it takes that username, opens another tab, it does maybe https://x.com slash the username slash about information or whatever it is about information.
+
+I haven't read that one yet but I will read it soon and just give me a reference for how that one would work. And also, it has the limit of posts it can scrape on a certain goal. And also, please let this have in mind, the post shouldn't be more than one day. 
+
+So, if it's one day old, it's still eligible. If it's more than one day, which is like two days and above, it's no more eligible to go through that process. Now, the next actor gets the links it has been sent to. 
+
+Check each and every one comment that commented on it. Scrape the verified ones, the usernames of the verified ones and send it to the next actor. Get the points till it reaches the end of the line, which is the one that blocks the people I have followed that I have yet to follow back for the past five days.
+
+Thank you for your help.
+
+(Transcribed by TurboScribe. Go Unlimited to remove this message.)

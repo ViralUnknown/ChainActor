@@ -1,0 +1,49 @@
+<div class="bg-background/80 sticky top-0 z-20 h-[53px] items-center gap-3 px-2 backdrop-blur-md sm:flex hidden"><button
+        type="button"
+        class="flex h-[34px] w-[34px] items-center justify-center rounded-full transition-colors hover:bg-gray-100"
+        aria-label="Back"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" data-icon="icon-arrow-left"
+            viewBox="0 0 24 24" width="1em" height="1em" display="flex" role="img" aria-hidden="true"
+            class="text-gray-1100 h-5 w-5">
+            <path d="M7.414 13l5.043 5.04-1.414 1.42L3.586 12l7.457-7.46 1.414 1.42L7.414 11H21v2H7.414z"></path>
+        </svg></button>
+    <div class="flex min-w-0 flex-1 flex-col justify-center">
+        <div class="overflow-hidden flex items-center gap-1">
+            <div class="flex max-w-full shrink-0 items-center gap-1">
+                <div
+                    class="font-chirp max-w-full whitespace-pre-wrap break-all text-text line-clamp-1 text-headline2 font-extrabold">
+                    Henry🔶Krypt</div>
+                <div class="shrink-0">
+                    <div
+                        class="font-chirp max-w-full whitespace-pre-wrap break-words text-text text-headline2 font-normal">
+                        <div class="flex gap-1"><span role="button" tabindex="0" aria-label="Verified account"
+                                class="flex cursor-pointer items-center" type="button" aria-haspopup="dialog"
+                                aria-expanded="false" data-state="closed"><svg xmlns="http://www.w3.org/2000/svg"
+                                    fill="currentColor" data-icon="icon-verified" viewBox="0 0 22 22" width="1em"
+                                    height="1em" display="flex" role="img" aria-hidden="true" class="fill-badge">
+                                    <path
+                                        d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.854-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681s.075-1.299-.165-1.903c.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z">
+                                    </path>
+                                </svg></span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="font-chirp max-w-full whitespace-pre-wrap break-words text-gray-700 text-subtext2 font-normal">3,341
+            posts</div>
+    </div><button
+        class="gap-1 inline-flex items-center border border-solid font-bold has-[svg:only-child]:px-0 transition disabled:pointer-events-none focus-visible:outline disabled:opacity-50 justify-center h-9 min-w-9 px-4 [&amp;&gt;svg]:size-5 text-body bg-transparent border-transparent outline-text text-text rounded-full active:bg-mix-text active:bg-mix-amount-15 focus-visible:bg-mix-text focus-visible:bg-mix-amount-10 hover:bg-mix-text hover:bg-mix-amount-10"
+        aria-label="Grok"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" data-icon="icon-grok-logo"
+            viewBox="0 0 33 32" width="1em" height="1em" display="flex" role="img" aria-hidden="true">
+            <path
+                d="M12.745 20.54l10.97-8.19c.539-.4 1.307-.244 1.564.38 1.349 3.288.746 7.241-1.938 9.955-2.683 2.714-6.417 3.31-9.83 1.954l-3.728 1.745c5.347 3.697 11.84 2.782 15.898-1.324 3.219-3.255 4.216-7.692 3.284-11.693l.008.009c-1.351-5.878.332-8.227 3.782-13.031L33 0l-4.54 4.59v-.014L12.743 20.544m-2.263 1.987c-3.837-3.707-3.175-9.446.1-12.755 2.42-2.449 6.388-3.448 9.852-1.979l3.72-1.737c-.67-.49-1.53-1.017-2.515-1.387-4.455-1.854-9.789-.931-13.41 2.728-3.483 3.523-4.579 8.94-2.697 13.561 1.405 3.454-.899 5.898-3.22 8.364C1.49 30.2.666 31.074 0 32l10.478-9.466">
+            </path>
+        </svg></button><button type="button"
+        class="flex h-[34px] w-[34px] items-center justify-center rounded-full transition-colors hover:bg-gray-100"
+        aria-label="Search"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" data-icon="icon-search-stroke"
+            viewBox="0 0 24 24" width="1em" height="1em" display="flex" role="img" aria-hidden="true"
+            class="text-gray-1100 h-5 w-5">
+            <path
+                d="M10.25 3.75c-3.59 0-6.5 2.91-6.5 6.5s2.91 6.5 6.5 6.5c1.795 0 3.419-.726 4.596-1.904 1.178-1.177 1.904-2.801 1.904-4.596 0-3.59-2.91-6.5-6.5-6.5zm-8.5 6.5c0-4.694 3.806-8.5 8.5-8.5s8.5 3.806 8.5 8.5c0 1.986-.682 3.815-1.824 5.262l4.781 4.781-1.414 1.414-4.781-4.781c-1.447 1.142-3.276 1.824-5.262 1.824-4.694 0-8.5-3.806-8.5-8.5z">
+            </path>
+        </svg></button>
+</div>

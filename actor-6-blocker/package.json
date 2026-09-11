@@ -1,0 +1,18 @@
+{
+    "name": "actor-6-blocker",
+    "version": "1.0.0",
+    "type": "module",
+    "description": "Triggered on a 5-day cron cycle. Queries follow_log for accounts followed >= 5 days ago that have not followed back, verifies on profile, and blocks them.",
+    "main": "src/main.js",
+    "scripts": {
+        "start": "node src/main.js"
+    },
+    "dependencies": {
+        "@supabase/supabase-js": "^2.49.1",
+        "apify": "^3.3.3",
+        "crawlee": "^3.12.2",
+        "dotenv": "^16.4.7",
+        "playwright": "^1.50.1",
+        "ws": "^8.18.0"
+    }
+}

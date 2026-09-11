@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>X Follower Extractor</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0d0d0f;
+      --surface: #16181c;
+      --surface2: #1e2128;
+      --border: #2a2d35;
+      --accent: #1d9bf0;
+      --accent-dim: rgba(29,155,240,0.12);
+      --green: #00ba7c;
+      --green-dim: rgba(0,186,124,0.12);
+      --red: #f4212e;
+      --red-dim: rgba(244,33,46,0.12);
+      --text: #e7e9ea;
+      --muted: #71767b;
+      --verified: #1d9bf0;
+      --radius: 10px;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    body {
+      width: 360px;
+      min-height: 480px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 13px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .logo {
+      width: 28px; height: 28px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: grid; place-items: center;
+      flex-shrink: 0;
+    }
+    .logo svg { width: 16px; height: 16px; fill: white; }
+    header h1 {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+    }
+    header .subtitle {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+
+    /* Status bar */
+    #status-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .status-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--muted);
+      flex-shrink: 0;
+      transition: background 0.3s;
+    }
+    .status-dot.running { background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 1.5s infinite; }
+    .status-dot.stopped { background: var(--muted); }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    #count-badge {
+      margin-left: auto;
+      background: var(--accent-dim);
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
+    /* Controls */
+    .controls {
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .row { display: flex; gap: 8px; align-items: center; }
+
+    label.field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+    label.field span {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    select, input[type="range"] {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 6px;
+      padding: 6px 8px;
+      font-size: 12px;
+      width: 100%;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    select:focus { border-color: var(--accent); }
+
+    .speed-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .speed-row input[type="range"] {
+      padding: 0;
+      height: 4px;
+      accent-color: var(--accent);
+      border: none;
+      background: transparent;
+      cursor: pointer;
+    }
+    .speed-val {
+      font-size: 11px;
+      color: var(--accent);
+      font-weight: 700;
+      min-width: 36px;
+      text-align: right;
+    }
+
+    /* Toggle */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 2px 0;
+    }
+    .toggle-label {
+      font-size: 12px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .toggle-label .badge {
+      font-size: 10px;
+      background: var(--verified);
+      color: white;
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-weight: 700;
+    }
+    .toggle {
+      width: 36px; height: 20px;
+      background: var(--border);
+      border-radius: 10px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s;
+      border: none;
+      outline: none;
+      flex-shrink: 0;
+    }
+    .toggle.on { background: var(--accent); }
+    .toggle::after {
+      content: '';
+      position: absolute;
+      width: 14px; height: 14px;
+      background: white;
+      border-radius: 50%;
+      top: 3px; left: 3px;
+      transition: transform 0.2s;
+    }
+    .toggle.on::after { transform: translateX(16px); }
+
+    /* Buttons */
+    .btn-row {
+      display: flex;
+      gap: 8px;
+    }
+    button.btn {
+      flex: 1;
+      padding: 9px 12px;
+      border-radius: 8px;
+      border: none;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    button.btn:active { transform: scale(0.97); }
+    button.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-start {
+      background: var(--green);
+      color: white;
+    }
+    .btn-stop {
+      background: var(--red-dim);
+      color: var(--red);
+      border: 1px solid rgba(244,33,46,0.3);
+    }
+    .btn-stop:disabled { opacity: 0.3; }
+
+    /* Search */
+    .search-wrap {
+      padding: 10px 16px 6px;
+    }
+    .search-wrap input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 7px 14px;
+      color: var(--text);
+      font-size: 12px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-wrap input::placeholder { color: var(--muted); }
+    .search-wrap input:focus { border-color: var(--accent); }
+
+    /* User list */
+    #user-list {
+      flex: 1;
+      overflow-y: auto;
+      min-height: 140px;
+      max-height: 220px;
+    }
+    #user-list::-webkit-scrollbar { width: 4px; }
+    #user-list::-webkit-scrollbar-track { background: transparent; }
+    #user-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 32px 16px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+    .empty-state svg { opacity: 0.3; }
+
+    .user-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.1s;
+    }
+    .user-item:hover { background: var(--surface); }
+    .avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--surface2);
+      display: grid; place-items: center;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
+      text-transform: uppercase;
+    }
+    .user-info { flex: 1; min-width: 0; }
+    .user-name {
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .verified-icon svg { width: 14px; height: 14px; fill: var(--verified); }
+    .user-handle {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+
+    /* Export bar */
+    .export-bar {
+      display: flex;
+      gap: 6px;
+      padding: 10px 16px;
+      border-top: 1px solid var(--border);
+    }
+    .btn-export {
+      flex: 1;
+      padding: 8px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    .btn-export:hover { border-color: var(--accent); background: var(--accent-dim); color: var(--accent); }
+    .btn-export:disabled { opacity: 0.3; cursor: not-allowed; }
+    .btn-clear {
+      padding: 8px 12px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 11px;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-clear:hover { border-color: var(--red); color: var(--red); }
+
+    /* Page guide */
+    .page-guide {
+      background: var(--accent-dim);
+      border: 1px solid rgba(29,155,240,0.2);
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin: 0 16px 10px;
+      font-size: 11px;
+      color: var(--accent);
+      display: none;
+    }
+    .page-guide.show { display: block; }
+    .page-guide strong { display: block; margin-bottom: 2px; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.742l7.733-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    </div>
+    <div>
+      <h1>Follower Extractor</h1>
+      <div class="subtitle">Navigate to a followers / following page first</div>
+    </div>
+  </header>
+
+  <div id="status-bar">
+    <div class="status-dot stopped" id="status-dot"></div>
+    <span id="status-text">Idle</span>
+    <span id="count-badge">0 users</span>
+  </div>
+
+  <div class="page-guide" id="page-guide">
+    <strong>⚠ Open a followers/following page</strong>
+    Go to x.com → Profile → Followers or Following, then click Start.
+  </div>
+
+  <div class="controls">
+    <div class="row">
+      <label class="field" style="flex:1.2">
+        <span>Scroll Speed</span>
+        <div class="speed-row">
+          <input type="range" id="speed" min="400" max="2000" step="100" value="800" />
+          <span class="speed-val" id="speed-val">0.8s</span>
+        </div>
+      </label>
+    </div>
+
+    <div class="toggle-row">
+      <span class="toggle-label">
+        Verified only
+        <span class="badge">✓</span>
+      </span>
+      <button class="toggle" id="verified-toggle" title="Toggle verified only"></button>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-start" id="btn-start">▶ Start</button>
+      <button class="btn btn-stop" id="btn-stop" disabled>■ Stop</button>
+    </div>
+  </div>
+
+  <div class="search-wrap">
+    <input type="text" id="search" placeholder="Filter by name or @handle…" />
+  </div>
+
+  <div id="user-list">
+    <div class="empty-state">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+      Start extraction on a followers or following page
+    </div>
+  </div>
+
+  <div class="export-bar">
+    <button class="btn-export" id="btn-csv" disabled>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>
+      Export CSV
+    </button>
+    <button class="btn-export" id="btn-txt" disabled>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M14 17H4v2h10v-2zm6-8H4v2h16V9zM4 15h16v-2H4v2zM4 5v2h16V5H4z"/></svg>
+      Usernames
+    </button>
+    <button class="btn-clear" id="btn-clear" title="Clear all">✕</button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

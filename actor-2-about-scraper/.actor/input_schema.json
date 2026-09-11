@@ -1,0 +1,53 @@
+{
+    "title": "Actor 2: About Scraper Input",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "batchSize": {
+            "title": "Batch Size",
+            "type": "integer",
+            "description": "Number of pending profiles to fetch and process from Supabase per run.",
+            "default": 50,
+            "minimum": 1
+        },
+        "delayBetweenRequests": {
+            "title": "Delay Between Requests (ms)",
+            "type": "integer",
+            "description": "Delay between each profile navigation.",
+            "default": 1800,
+            "minimum": 500
+        },
+        "cookies": {
+            "title": "Session Cookies (JSON or String)",
+            "type": "array",
+            "description": "X.com session cookies pool.",
+            "prefill": [],
+            "editor": "json"
+        },
+        "auth_token": {
+            "title": "auth_token (Optional direct cookie)",
+            "type": "string",
+            "description": "Direct X.com auth_token value.",
+            "editor": "textfield"
+        },
+        "ct0": {
+            "title": "ct0 (Optional direct cookie)",
+            "type": "string",
+            "description": "Direct X.com ct0 value.",
+            "editor": "textfield"
+        },
+        "supabaseUrl": {
+            "title": "Supabase Project URL",
+            "type": "string",
+            "description": "Supabase project URL (defaults to SUPABASE_URL env var).",
+            "editor": "textfield"
+        },
+        "supabaseAnonKey": {
+            "title": "Supabase Anon Key",
+            "type": "string",
+            "description": "Supabase API key (defaults to SUPABASE_ANON_KEY env var).",
+            "editor": "textfield"
+        }
+    },
+    "required": []
+}

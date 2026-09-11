@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 480px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0d1117;
+      color: #e6edf2;
+      padding: 16px;
+    }
+    h2 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 11px;
+      color: #8b949e;
+      margin-bottom: 14px;
+    }
+    .status-box {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      padding: 12px;
+      font-size: 13px;
+      margin-bottom: 12px;
+      min-height: 40px;
+    }
+    .status-box.success { border-color: #3fb950; }
+    .status-box.error { border-color: #f85149; }
+    .status-box.running { border-color: #58a6ff; }
+    
+    .count-box {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .count-row {
+      display: flex;
+      gap: 12px;
+      font-size: 13px;
+    }
+    .count-item {
+      flex: 1;
+    }
+    .count-item-label {
+      font-size: 11px;
+      color: #8b949e;
+      margin-bottom: 4px;
+    }
+    .count-item-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: #58a6ff;
+    }
+    
+    .btn {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: none;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-bottom: 7px;
+    }
+    .btn-start { background: #238636; color: #fff; }
+    .btn-start:hover { background: #1a7f37; }
+    .btn-start:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-stop { background: #da3633; color: #fff; }
+    .btn-stop:hover { background: #b91c1c; }
+    .btn-stop:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-clear { background: #21262d; color: #cdd9e5; border: 1px solid #30363d; }
+    .btn-clear:hover { background: #30363d; }
+    
+    .export-group {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .export-group button {
+      flex: 1;
+      padding: 8px;
+      font-size: 12px;
+    }
+    
+    .preview {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      max-height: 200px;
+      overflow-y: auto;
+      font-size: 11px;
+    }
+    .preview-item {
+      padding: 6px 10px;
+      border-bottom: 1px solid #21262d;
+      color: #8b949e;
+    }
+    .preview-item:last-child { border-bottom: none; }
+    .preview-item.verified { color: #3fb950; }
+    
+    .note {
+      font-size: 11px;
+      color: #8b949e;
+      padding: 8px;
+      background: #161b22;
+      border-radius: 6px;
+      margin-bottom: 12px;
+      border-left: 3px solid #58a6ff;
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .filter-btn {
+      flex: 1;
+      padding: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 6px;
+      border: 1px solid #30363d;
+      background: #161b22;
+      color: #8b949e;
+      cursor: pointer;
+    }
+    .filter-btn.active {
+      background: #1f6feb;
+      border-color: #1f6feb;
+      color: #fff;
+    }
+    .filter-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>👥 My Followers Extractor</h2>
+  <p class="subtitle">Extract ONLY accounts that follow you (with "Follows you" badge)</p>
+
+  <div class="note">
+    ⚡ Extension keeps running even when this popup closes. Data is saved automatically.
+  </div>
+
+  <div id="status" class="status-box">Ready</div>
+
+  <div class="filter-group">
+    <button id="filterAll" class="filter-btn active">All Followers</button>
+    <button id="filterVerified" class="filter-btn">Verified Only</button>
+  </div>
+
+  <div class="count-box">
+    <div class="count-row">
+      <div class="count-item">
+        <div class="count-item-label">My Followers</div>
+        <div class="count-item-value" id="count">0</div>
+      </div>
+      <div class="count-item">
+        <div class="count-item-label">Verified</div>
+        <div class="count-item-value" id="verifiedCount">0</div>
+      </div>
+    </div>
+  </div>
+
+  <button id="startBtn" class="btn btn-start">▶ Start Extracting</button>
+  <button id="stopBtn" class="btn btn-stop" disabled>⏹ Stop</button>
+
+  <div class="export-group">
+    <button id="copyBtn" class="btn btn-clear">📋 Copy All</button>
+    <button id="downloadBtn" class="btn btn-clear">⬇ Download</button>
+    <button id="clearBtn" class="btn btn-clear">🗑 Clear</button>
+  </div>
+
+  <div id="previewContainer" style="display:none; margin-bottom:12px;">
+    <div style="font-size: 11px; margin-bottom: 6px; color: #8b949e;">Preview (first 15):</div>
+    <div id="preview" class="preview"></div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

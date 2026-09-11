@@ -1,0 +1,10 @@
+{
+    "$schema": "https://apify.com/schemas/v1/actor.ide.json",
+    "actorSpecification": 1,
+    "name": "actor-5-follow-actor",
+    "title": "Actor 5: Nigerian Creator Follow Actor (Cron Driven)",
+    "description": "Triggered by your custom Apify cron schedule. Follows ready_to_follow accounts in batches (e.g. 8 follows per 10-15 min window) and logs actions to Supabase follow_log.",
+    "version": "1.0.0",
+    "input": "./input_schema.json",
+    "dockerfile": "./Dockerfile"
+}

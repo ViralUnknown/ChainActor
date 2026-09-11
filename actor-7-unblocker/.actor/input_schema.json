@@ -1,0 +1,60 @@
+{
+    "title": "Actor 7: Unblocker Input",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "maxProfilesToProcess": {
+            "title": "Max Profiles to Process",
+            "type": "integer",
+            "description": "Max number of profiles to unblock per run.",
+            "default": 30,
+            "minimum": 1
+        },
+        "daysThreshold": {
+            "title": "Days Elapsed Since Blocking",
+            "type": "integer",
+            "description": "Number of days elapsed before unblocking (Default: 3 days).",
+            "default": 3,
+            "minimum": 1
+        },
+        "delayBetweenUnblocks": {
+            "title": "Delay Between Unblocks (ms)",
+            "type": "integer",
+            "description": "Delay in milliseconds between unblock actions.",
+            "default": 3000,
+            "minimum": 1000
+        },
+        "cookies": {
+            "title": "Session Cookies (JSON or Netscape String)",
+            "type": "array",
+            "description": "X.com session cookies.",
+            "prefill": [],
+            "editor": "json"
+        },
+        "auth_token": {
+            "title": "auth_token (Optional direct cookie)",
+            "type": "string",
+            "description": "Direct X.com auth_token value.",
+            "editor": "textfield"
+        },
+        "ct0": {
+            "title": "ct0 (Optional direct cookie)",
+            "type": "string",
+            "description": "Direct X.com ct0 value.",
+            "editor": "textfield"
+        },
+        "supabaseUrl": {
+            "title": "Supabase Project URL",
+            "type": "string",
+            "description": "Supabase project URL.",
+            "editor": "textfield"
+        },
+        "supabaseAnonKey": {
+            "title": "Supabase Anon Key",
+            "type": "string",
+            "description": "Supabase API key.",
+            "editor": "textfield"
+        }
+    },
+    "required": []
+}

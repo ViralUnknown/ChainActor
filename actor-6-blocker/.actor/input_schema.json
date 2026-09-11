@@ -1,0 +1,60 @@
+{
+    "title": "Actor 6: Blocker Input",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "maxProfilesToProcess": {
+            "title": "Max Profiles to Process",
+            "type": "integer",
+            "description": "Max number of candidate profiles to process during this blocker run.",
+            "default": 30,
+            "minimum": 1
+        },
+        "daysThreshold": {
+            "title": "Days Elapsed Since Following",
+            "type": "integer",
+            "description": "Number of days before blocking non-followers (Default: 5 days).",
+            "default": 5,
+            "minimum": 1
+        },
+        "delayBetweenBlocks": {
+            "title": "Delay Between Blocks (ms)",
+            "type": "integer",
+            "description": "Delay in milliseconds between block actions.",
+            "default": 3000,
+            "minimum": 1000
+        },
+        "cookies": {
+            "title": "Session Cookies (JSON or Netscape String)",
+            "type": "array",
+            "description": "X.com session cookies.",
+            "prefill": [],
+            "editor": "json"
+        },
+        "auth_token": {
+            "title": "auth_token (Optional direct cookie)",
+            "type": "string",
+            "description": "Direct X.com auth_token value.",
+            "editor": "textfield"
+        },
+        "ct0": {
+            "title": "ct0 (Optional direct cookie)",
+            "type": "string",
+            "description": "Direct X.com ct0 value.",
+            "editor": "textfield"
+        },
+        "supabaseUrl": {
+            "title": "Supabase Project URL",
+            "type": "string",
+            "description": "Supabase project URL.",
+            "editor": "textfield"
+        },
+        "supabaseAnonKey": {
+            "title": "Supabase Anon Key",
+            "type": "string",
+            "description": "Supabase API key.",
+            "editor": "textfield"
+        }
+    },
+    "required": []
+}

@@ -1,0 +1,10 @@
+{
+    "$schema": "https://apify.com/schemas/v1/actor.ide.json",
+    "actorSpecification": 1,
+    "name": "actor-6-blocker",
+    "title": "Actor 6: 5-Day Non-Followback Blocker",
+    "description": "Triggered by your cron schedule. Checks accounts followed >= 5 days ago in follow_log. If they don't follow back, blocks them and records blocked_at.",
+    "version": "1.0.0",
+    "input": "./input_schema.json",
+    "dockerfile": "./Dockerfile"
+}

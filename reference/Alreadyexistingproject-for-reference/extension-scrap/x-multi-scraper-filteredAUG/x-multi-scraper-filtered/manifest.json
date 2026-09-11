@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "X Multi-Post Commenter Scraper",
+  "version": "2.0",
+  "description": "Paste multiple X post links and extract all commenters (verified or unverified). Filter by verification status when exporting.",
+  "permissions": [
+    "scripting",
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://x.com/*",
+    "https://twitter.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon.png",
+      "48": "icon.png",
+      "128": "icon.png"
+    }
+  }
+}

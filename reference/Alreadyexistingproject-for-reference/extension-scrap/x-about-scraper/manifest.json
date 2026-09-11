@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "X Profile Region Extractor",
+  "version": "1.0",
+  "description": "Extract Account Based In and Connected Via from X profile about pages. Filter by region.",
+  "permissions": [
+    "scripting",
+    "storage",
+    "tabs",
+    "cookies"
+  ],
+  "host_permissions": [
+    "https://x.com/*",
+    "https://twitter.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon.png",
+      "48": "icon.png",
+      "128": "icon.png"
+    }
+  }
+}

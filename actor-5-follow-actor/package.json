@@ -1,0 +1,18 @@
+{
+    "name": "actor-5-follow-actor",
+    "version": "1.0.0",
+    "type": "module",
+    "description": "Triggered by cron schedule. Follows qualified Nigerian leads from Supabase with human-like delays, orders by lowest follower count first, and logs to follow_log.",
+    "main": "src/main.js",
+    "scripts": {
+        "start": "node src/main.js"
+    },
+    "dependencies": {
+        "@supabase/supabase-js": "^2.49.1",
+        "apify": "^3.3.3",
+        "crawlee": "^3.12.2",
+        "dotenv": "^16.4.7",
+        "playwright": "^1.50.1",
+        "ws": "^8.18.0"
+    }
+}

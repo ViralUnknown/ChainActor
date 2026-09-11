@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 480px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0d1117;
+      color: #e6edf2;
+      padding: 16px;
+    }
+
+    h2 { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 3px; display: flex; align-items: center; gap: 7px; }
+    .subtitle { font-size: 11px; color: #8b949e; margin-bottom: 14px; }
+    label { font-size: 12px; color: #8b949e; display: block; margin-bottom: 5px; }
+
+    textarea {
+      width: 100%; height: 90px;
+      background: #161b22; border: 1px solid #30363d; border-radius: 6px;
+      color: #e6edf2; font-size: 12px; padding: 8px; resize: vertical;
+      outline: none; font-family: monospace; line-height: 1.6;
+    }
+    textarea:focus { border-color: #58a6ff; }
+    textarea::placeholder { color: #484f58; }
+    .hint { font-size: 11px; color: #6e7681; margin-top: 5px; margin-bottom: 12px; }
+
+    /* Status */
+    .status-box {
+      background: #161b22; border: 1px solid #30363d; border-radius: 6px;
+      padding: 8px 11px; font-size: 12px; margin-bottom: 10px;
+      min-height: 34px; line-height: 1.5; display: none;
+    }
+    .status-box.visible { display: block; }
+
+    /* Progress */
+    .progress-wrap {
+      background: #21262d; border-radius: 4px; height: 5px;
+      margin-bottom: 10px; display: none; overflow: hidden;
+    }
+    .progress-wrap.visible { display: block; }
+    .progress-bar { height: 100%; background: #1d9bf0; border-radius: 4px; width: 0%; transition: width 0.4s; }
+
+    /* Buttons row */
+    .btn-row { display: flex; gap: 7px; margin-bottom: 10px; }
+    .btn {
+      flex: 1; padding: 9px; border-radius: 6px; border: none;
+      font-size: 12px; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 5px;
+      transition: background 0.2s;
+    }
+    .btn-blue { background: #1d9bf0; color: #fff; }
+    .btn-blue:hover { background: #1a8cd8; }
+    .btn-blue:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-stop { background: #21262d; color: #cdd9e5; border: 1px solid #30363d; }
+    .btn-stop:hover { background: #30363d; }
+    .btn-stop:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-clear { background: #21262d; color: #8b949e; border: 1px solid #30363d; flex: 0 0 auto; padding: 9px 12px; }
+    .btn-clear:hover { background: #30363d; color: #e6edf2; }
+
+    /* Filter section */
+    .filter-section { display: none; margin-bottom: 10px; }
+    .filter-section.visible { display: block; }
+    .filter-header {
+      font-size: 11px; font-weight: 700; color: #8b949e;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      margin-bottom: 7px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .filter-row { display: flex; gap: 7px; align-items: center; flex-wrap: wrap; }
+    .filter-input {
+      flex: 1; min-width: 140px;
+      background: #161b22; border: 1px solid #30363d; border-radius: 5px;
+      color: #e6edf2; font-size: 12px; padding: 6px 9px; outline: none;
+    }
+    .filter-input:focus { border-color: #58a6ff; }
+    .filter-input::placeholder { color: #484f58; }
+    .filter-mode {
+      background: #161b22; border: 1px solid #30363d; border-radius: 5px;
+      color: #e6edf2; font-size: 12px; padding: 6px 9px; outline: none; cursor: pointer;
+    }
+    .filter-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 6px; }
+    .filter-tag {
+      background: #21262d; border: 1px solid #30363d; border-radius: 12px;
+      padding: 2px 10px; font-size: 11px; color: #8b949e; cursor: pointer;
+      transition: all 0.15s;
+    }
+    .filter-tag:hover { border-color: #58a6ff; color: #58a6ff; }
+    .filter-tag.active-include { background: #0d419d; border-color: #1d9bf0; color: #58a6ff; }
+    .filter-tag.active-exclude { background: #3d1a1a; border-color: #f85149; color: #f85149; }
+
+    /* Stats row */
+    .stats-row { display: flex; gap: 7px; margin-bottom: 10px; flex-wrap: wrap; }
+    .stat-pill {
+      background: #161b22; border: 1px solid #30363d; border-radius: 20px;
+      padding: 3px 10px; font-size: 11px; color: #8b949e;
+    }
+    .stat-pill span { font-weight: 700; color: #1d9bf0; }
+    .stat-pill.filtered span { color: #3fb950; }
+
+    /* Results table */
+    .results-wrap {
+      display: none; background: #161b22; border: 1px solid #30363d;
+      border-radius: 7px; overflow: hidden; margin-bottom: 10px;
+    }
+    .results-wrap.visible { display: block; }
+    .table-scroll { max-height: 220px; overflow-y: auto; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 11px; min-width: 420px; }
+    thead th {
+      background: #21262d; padding: 7px 10px; text-align: left;
+      font-size: 10px; font-weight: 700; color: #8b949e;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      position: sticky; top: 0; z-index: 1;
+      border-bottom: 1px solid #30363d; white-space: nowrap;
+    }
+    thead th.sortable { cursor: pointer; user-select: none; }
+    thead th.sortable:hover { color: #e6edf2; }
+    tbody tr { border-bottom: 1px solid #21262d; transition: background 0.1s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #1c2128; }
+    tbody td { padding: 7px 10px; color: #e6edf2; vertical-align: middle; }
+    tbody td.dim { color: #8b949e; }
+    tbody td.username a { color: #58a6ff; text-decoration: none; }
+    tbody td.username a:hover { text-decoration: underline; }
+    tbody td .badge {
+      display: inline-block; padding: 1px 6px; border-radius: 10px;
+      font-size: 10px; font-weight: 700;
+    }
+    .badge-verified { background: #0d419d; color: #58a6ff; }
+    .badge-error { background: #3d1a1a; color: #f85149; }
+    .no-results { padding: 20px; text-align: center; color: #484f58; font-size: 12px; }
+
+    /* Export row */
+    .export-row { display: flex; gap: 7px; }
+    .export-row .btn { margin-bottom: 0; }
+    .btn-export { background: #238636; color: #fff; }
+    .btn-export:hover { background: #2ea043; }
+    .btn-export:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-copy { background: #6e40c9; color: #fff; }
+    .btn-copy:hover { background: #5a32a3; }
+    .btn-copy:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-copy.copied { background: #238636; }
+
+    /* Accordion / Collapsible section */
+    .collapsible-header {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #e6edf2;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 5px;
+      user-select: none;
+    }
+    .collapsible-header:hover { background: #21262d; }
+    .collapsible-header .arrow {
+      transition: transform 0.2s;
+      display: inline-block;
+    }
+    .collapsible-header.active .arrow { transform: rotate(90deg); }
+    .collapsible-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease-out, margin-bottom 0.2s ease-out;
+      margin-bottom: 0;
+    }
+    .collapsible-content.expanded {
+      max-height: 350px;
+      margin-bottom: 10px;
+    }
+    .collapsible-inner {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-top: none;
+      border-bottom-left-radius: 6px;
+      border-bottom-right-radius: 6px;
+      padding: 12px;
+    }
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .checkbox-row input[type="checkbox"] {
+      cursor: pointer;
+      width: 14px;
+      height: 14px;
+    }
+    .checkbox-row label {
+      margin-bottom: 0;
+      cursor: pointer;
+      font-weight: 600;
+      color: #e6edf2;
+    }
+
+    .footer { font-size: 11px; color: #484f58; text-align: center; margin-top: 12px; }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #161b22; }
+    ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+  <h2>🌍 X Profile Region Extractor</h2>
+  <p class="subtitle">Extract "Account based in" + "Connected via" from any X profiles.</p>
+
+  <label for="usernameInput">Usernames or profile links (one per line)</label>
+  <textarea id="usernameInput" placeholder="@RoseK&#10;Official_RoseK&#10;https://x.com/SomeUser&#10;https://x.com/AnotherUser/about"></textarea>
+  <p class="hint">@ symbol and full URLs are all accepted. Duplicates ignored.</p>
+
+  <!-- Collapsible cookies section -->
+  <div class="collapsible-header" id="cookiesHeader">
+    <span>🔑 Multi-Account Cookies (Optional)</span>
+    <span class="arrow">▶</span>
+  </div>
+  <div class="collapsible-content" id="cookiesContent">
+    <div class="collapsible-inner">
+      <div class="checkbox-row">
+        <input type="checkbox" id="cookieSwitchToggle">
+        <label for="cookieSwitchToggle">Enable Account Rotation (every 42 profiles)</label>
+      </div>
+      <label for="cookieInput">Enter cookies (one account per line). Either paste a raw 'auth_token' value, or full cookie string (e.g. auth_token=xxxx; ct0=yyyy):</label>
+      <textarea id="cookieInput" style="height: 120px;" placeholder="Cookie account 1&#10;Cookie account 2&#10;..."></textarea>
+      <p class="hint" style="margin-bottom: 0;">Provide at least 2 cookies to rotate. Scraper switches cookies to distribute request load.</p>
+    </div>
+  </div>
+
+  <div id="statusBox" class="status-box"></div>
+  <div class="progress-wrap" id="progressWrap"><div class="progress-bar" id="progressBar"></div></div>
+
+  <div class="btn-row">
+    <button id="scanBtn" class="btn btn-blue">🔍 Extract Regions</button>
+    <button id="stopBtn" class="btn btn-stop" disabled>⏹ Stop</button>
+    <button id="clearBtn" class="btn btn-clear" title="Clear all results">🗑</button>
+  </div>
+
+  <!-- Filter section -->
+  <div class="filter-section" id="filterSection">
+    <div class="filter-header">
+      <span>🔽 Filter Results</span>
+      <span id="filterCount" style="color:#3fb950; font-weight:700;"></span>
+    </div>
+    <div class="filter-row">
+      <input class="filter-input" id="filterInput" placeholder='Type a country e.g. "Nigeria"'>
+      <select class="filter-mode" id="filterMode">
+        <option value="include">Show only</option>
+        <option value="exclude">Exclude</option>
+      </select>
+    </div>
+    <div class="filter-tags" id="filterTags">
+      <!-- Quick preset tags populated by JS -->
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row" id="statsRow" style="display:none">
+    <div class="stat-pill">Total: <span id="totalCount">0</span></div>
+    <div class="stat-pill filtered">Showing: <span id="showingCount">0</span></div>
+    <div class="stat-pill">Errors: <span id="errorCount">0</span></div>
+  </div>
+
+  <!-- Results table -->
+  <div class="results-wrap" id="resultsWrap">
+    <div class="table-scroll">
+      <table id="resultsTable">
+        <thead>
+          <tr>
+            <th class="sortable" data-col="username">Username</th>
+            <th class="sortable" data-col="accountBasedIn">Based In</th>
+            <th class="sortable" data-col="connectedVia">Connected Via</th>
+            <th>✓</th>
+          </tr>
+        </thead>
+        <tbody id="resultsBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Export -->
+  <div class="export-row" id="exportRow" style="display:none">
+    <button id="copyBtn" class="btn btn-copy" disabled>📋 Copy Usernames</button>
+    <button id="exportCsvBtn" class="btn btn-export" disabled>💾 Export CSV</button>
+    <button id="exportFilteredBtn" class="btn btn-export" disabled>📤 Export Filtered</button>
+  </div>
+
+  <p class="footer">Data is saved. Close and reopen anytime — results persist.</p>
+
+  <script src="popup.js"></script>
+</body>
+</html>

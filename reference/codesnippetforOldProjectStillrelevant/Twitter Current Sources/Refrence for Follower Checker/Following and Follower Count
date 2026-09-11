@@ -1,0 +1,15 @@
+<div class="flex flex-wrap items-center gap-5"><a class="text-text hover:underline" href="/milly_j0j0/following">
+        <div class="flex items-center gap-1">
+            <div class="font-chirp max-w-full whitespace-pre-wrap break-words text-text text-subtext1 font-bold">507
+            </div>
+            <div class="font-chirp max-w-full whitespace-pre-wrap break-words text-gray-700 text-subtext1 font-normal">
+                Following</div>
+        </div>
+    </a><a class="text-text hover:underline" href="/milly_j0j0/verified_followers">
+        <div class="flex items-center gap-1">
+            <div class="font-chirp max-w-full whitespace-pre-wrap break-words text-text text-subtext1 font-bold">609
+            </div>
+            <div class="font-chirp max-w-full whitespace-pre-wrap break-words text-gray-700 text-subtext1 font-normal">
+                Followers</div>
+        </div>
+    </a></div>

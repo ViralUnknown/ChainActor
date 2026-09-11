@@ -1,0 +1,37 @@
+{
+    "title": "X Post Comment Scraper Input",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "startUrls": {
+            "title": "Target Post URLs",
+            "type": "array",
+            "description": "URLs to X (Twitter) posts you want to scrape",
+            "editor": "requestListSources",
+            "prefill": [
+                {
+                    "url": "https://x.com/elonmusk/status/1785536412196020521"
+                }
+            ]
+        },
+        "auth_token": {
+            "title": "auth_token (Cookie)",
+            "type": "string",
+            "description": "Your X/Twitter auth_token cookie",
+            "editor": "textfield"
+        },
+        "ct0": {
+            "title": "ct0 (Cookie)",
+            "type": "string",
+            "description": "Your X/Twitter ct0 cookie",
+            "editor": "textfield"
+        },
+        "maxComments": {
+            "title": "Max Comments Per Post",
+            "type": "integer",
+            "description": "Maximum number of comments to extract per post.",
+            "default": 10
+        }
+    },
+    "required": ["startUrls", "auth_token", "ct0"]
+}

@@ -1,0 +1,16 @@
+{
+    "actorSpecification": 1,
+    "name": "post-comment-scraper",
+    "title": "X Post Comment Scraper",
+    "description": "Scrapes X (Twitter) posts and their top liked comments.",
+    "version": "0.0.1",
+    "meta": {
+        "templateId": "node-playwright",
+        "generatedBy": "Claude Code with Gemini 3.1 Pro"
+    },
+    "input": "./input_schema.json",
+    "storages": {
+        "dataset": "./dataset_schema.json"
+    },
+    "dockerfile": "../Dockerfile"
+}

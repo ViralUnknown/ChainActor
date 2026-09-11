@@ -1,0 +1,18 @@
+{
+    "name": "actor-7-unblocker",
+    "version": "1.0.0",
+    "type": "module",
+    "description": "Triggered by daily cron. Checks accounts in follow_log blocked >= 3 days ago, navigates to their profile, and unblocks them to restore clean account standing.",
+    "main": "src/main.js",
+    "scripts": {
+        "start": "node src/main.js"
+    },
+    "dependencies": {
+        "@supabase/supabase-js": "^2.49.1",
+        "apify": "^3.3.3",
+        "crawlee": "^3.12.2",
+        "dotenv": "^16.4.7",
+        "playwright": "^1.50.1",
+        "ws": "^8.18.0"
+    }
+}

@@ -1,0 +1,10 @@
+{
+    "$schema": "https://apify.com/schemas/v1/actor.ide.json",
+    "actorSpecification": 1,
+    "name": "actor-7-unblocker",
+    "title": "Actor 7: 3-Day Unblocker",
+    "description": "Triggered by cron schedule. Queries follow_log for accounts blocked >= 3 days ago, unblocks them, and marks them unblocked in Supabase.",
+    "version": "1.0.0",
+    "input": "./input_schema.json",
+    "dockerfile": "./Dockerfile"
+}

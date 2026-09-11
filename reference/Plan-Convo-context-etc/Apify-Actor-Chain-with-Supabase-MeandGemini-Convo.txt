@@ -1,0 +1,44 @@
+﻿Apify Actor Chain with Supabase
+https://gemini.google.com/app/e7f425f6c7d8b18f
+
+
+Response: This is a well-thought-out and ambitious automation pipeline. Building a continuous chain of Apify actors using persistent Brave browser profiles and Playwright requires solid state management, especially when tracking time delays and filtering complex logic.
+To answer your primary question: You should definitely use Supabase to connect these actors rather than relying solely on Apify’s native datasets. While Apify can pass data between actors via webhooks, you are dealing with time-sensitive states (like tracking the 5-day follow window) and complex data mutations (like maintaining sort orders after subtracting followed users). Supabase will act as the "brain" of your operation, holding a central PostgreSQL database that all your actors read from and write to.
+Here is how you can structure this chain reaction, step-by-step, and exactly where the logic should lie.
+1. Central State Management (Supabase)
+Instead of pushing arrays of data from one actor to the next, each actor will simply update a central leads table in Supabase. This table will have columns like username, location_status, follower_count, followed_at_timestamp, and status (e.g., pending, followed, blocked).
+2. Actor 1: The Timeline Scraper
+* Action: This actor uses an active session to scroll your home feed.
+* Logic: It checks the post age to ensure it is not older than one day. If the post meets your engagement criteria, it extracts the author's location.
+* Filtering: It checks for the exact words "Nigeria" or "Africa" to avoid confusing it with North/South Africa.
+* Next Step: Playwright can easily extract the post link using the source code or DOM elements. It pushes this link directly into a Supabase table called target_posts.
+3. Actor 2: The Comment Scraper
+* Action: This actor pulls the collected post links from Supabase.
+* Logic: It scrapes the usernames of commenters on those posts, specifically isolating only the verified ones.
+* Next Step: It inserts these verified usernames into your leads table in Supabase.
+4. Actor 3: The Location Filter
+* Action: This actor runs in parallel or sequentially, querying the leads table for new usernames.
+* Logic: It visits the target's "About" page to check the "Account based in" or "Connected via" sections.
+* Filtering: If it contains "Nigeria" (even as "Nigeria app store" or "Nigeria Android store"), it approves the user.
+* Next Step: It updates the user's row in Supabase to location_verified = true.
+5. Actor 4: Follower Checker & Ratio Filter
+* Action: Grabs the location_verified users from Supabase and scrapes their follower/following counts.
+* Where the logic lies: The filtering logic should happen inside this actor immediately after it scrapes the numbers.
+* Filtering: If the follower count is below 200, it drops them. It then calculates the ratio (e.g., followers / following). If the ratio is heavily skewed (like 200 followers to 800 following, or vice versa), it drops them.
+* Next Step: For the accounts that pass, the actor updates their metrics in Supabase. You can then use a simple Supabase query to return these users sorted from least followed to most followed.
+6. Actor 5: The Following Checker
+* Action: Logs into your account and scrapes the usernames you are currently following.
+* Where the logic lies: This logic should happen before you query the final list for the next actor.
+* Filtering: It compares the scraped "already following" list against your sorted list in Supabase. It subtracts your current followings from the list.
+* Sorting Rule: Because Supabase is querying the database using an ORDER BY follower_count ASC command, the arrangement will remain perfectly preserved from least to most, even after the already-followed users are removed.
+7. Actor 6: The Follower Actor
+* Action: This actor takes the final, sorted, and filtered list and follows the accounts.
+* Logic: It executes a follow action every 10 to 15 minutes.
+* Crucial Step: Once it follows someone, it updates that user's row in Supabase with a timestamp: followed_at = NOW(). This is how you will solve the 5-day tracking issue.
+8. Actor 7: The Blocker Actor
+* Where the tracking logic lies: The 5-day calculation is handled purely by the database.
+* Action: This actor simply asks Supabase: "Give me all users where followed_at is older than 5 days."
+* Logic: It visits those specific profiles and looks for the "follows you" indicator. If the indicator is missing, it knows they have refused to follow you back for 5 days.
+* Final Step: It blocks the account, ending the chain.
+Since this entire flow relies on a chain reaction, would you prefer to trigger these actors sequentially via Apify webhooks (where one actor finishing immediately starts the next), or schedule them to run independently on Cron jobs so they operate in batches throughout the day?
+________________

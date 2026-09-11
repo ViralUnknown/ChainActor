@@ -1,0 +1,62 @@
+{
+    "$schema": "https://apify.com/schemas/v1/input.ide.json",
+    "title": "Follower & Following Scraper Input Schema",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "usernames": {
+            "title": "Target Usernames",
+            "type": "array",
+            "description": "List of X/Twitter handles to check (e.g. ['elonmusk', 'apify']). Supports bulk edit (one handle per line).",
+            "editor": "stringList",
+            "items": {
+                "type": "string"
+            },
+            "prefill": [
+                "elonmusk"
+            ]
+        },
+
+        "delayBetweenRequests": {
+            "title": "Delay Between Requests (ms)",
+            "type": "integer",
+            "description": "Pause between each profile visit in milliseconds to reclaim memory and throttle requests.",
+            "editor": "number",
+            "default": 3000,
+            "minimum": 500
+        },
+        "batchSize": {
+            "title": "Batch Size",
+            "type": "integer",
+            "description": "Number of profiles processed before flushing to database.",
+            "editor": "number",
+            "default": 6,
+            "minimum": 1
+        },
+
+        "supabaseUrl": {
+            "title": "Supabase Project URL",
+            "type": "string",
+            "description": "Optional Supabase Project URL for direct cloud streaming persistence.",
+            "editor": "textfield"
+        },
+        "supabaseAnonKey": {
+            "title": "Supabase Anon/Public Key",
+            "type": "string",
+            "description": "Optional Supabase Anonymous API Key for direct cloud streaming persistence.",
+            "editor": "hidden"
+        },
+        "proxyConfiguration": {
+            "title": "Proxy Configuration",
+            "type": "object",
+            "description": "Proxy settings for anti-bot protection.",
+            "editor": "proxy",
+            "default": {
+                "useApifyProxy": false
+            }
+        }
+    },
+    "required": [
+        "usernames"
+    ]
+}

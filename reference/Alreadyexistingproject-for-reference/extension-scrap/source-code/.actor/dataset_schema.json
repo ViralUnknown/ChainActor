@@ -1,0 +1,39 @@
+{
+    "$schema": "https://apify.com/schemas/v1/dataset.ide.json",
+    "actorSpecification": 1,
+    "fields": {},
+    "views": {
+        "overview": {
+            "title": "Overview",
+            "transformation": {
+                "fields": [
+                    "username",
+                    "accountBasedIn",
+                    "connectedVia",
+                    "scrapedAt"
+                ]
+            },
+            "display": {
+                "component": "table",
+                "properties": {
+                    "username": {
+                        "label": "Username",
+                        "format": "text"
+                    },
+                    "accountBasedIn": {
+                        "label": "Account Based In",
+                        "format": "text"
+                    },
+                    "connectedVia": {
+                        "label": "Connected Via",
+                        "format": "text"
+                    },
+                    "scrapedAt": {
+                        "label": "Scraped At",
+                        "format": "date"
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,20 @@
+{
+    "name": "follower-following-scraper",
+    "version": "1.0.0",
+    "type": "module",
+    "description": "Standalone Apify Actor for scraping X/Twitter follower and following counts.",
+    "main": "src/main.js",
+    "scripts": {
+        "start": "node src/main.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@supabase/supabase-js": "^2.49.1",
+        "apify": "^3.3.3",
+        "crawlee": "^3.12.2",
+        "dotenv": "^16.4.7",
+        "playwright": "^1.50.1"
+    }
+}

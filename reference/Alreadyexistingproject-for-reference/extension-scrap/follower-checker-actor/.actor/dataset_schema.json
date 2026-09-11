@@ -1,0 +1,54 @@
+{
+    "$schema": "https://apify.com/schemas/v1/dataset.ide.json",
+    "actorSpecification": 1,
+    "fields": {},
+    "views": {
+        "overview": {
+            "title": "Overview",
+            "transformation": {
+                "fields": [
+                    "username",
+                    "followerText",
+                    "followerCount",
+                    "followingText",
+                    "followingCount",
+                    "isVerified",
+                    "scrapedAt"
+                ]
+            },
+            "display": {
+                "component": "table",
+                "properties": {
+                    "username": {
+                        "label": "Username",
+                        "format": "text"
+                    },
+                    "followerText": {
+                        "label": "Followers Text",
+                        "format": "text"
+                    },
+                    "followerCount": {
+                        "label": "Followers Count",
+                        "format": "number"
+                    },
+                    "followingText": {
+                        "label": "Following Text",
+                        "format": "text"
+                    },
+                    "followingCount": {
+                        "label": "Following Count",
+                        "format": "number"
+                    },
+                    "isVerified": {
+                        "label": "Is Verified",
+                        "format": "boolean"
+                    },
+                    "scrapedAt": {
+                        "label": "Scraped At",
+                        "format": "date"
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,54 @@
+{
+    "title": "Actor 5: Follow Actor Input",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "followsPerRun": {
+            "title": "Follows Per Run",
+            "type": "integer",
+            "description": "Number of accounts to follow during this cron execution window (e.g. 8 follows per 10-15 minute cron run).",
+            "default": 8,
+            "minimum": 1,
+            "maximum": 50
+        },
+        "delaySeconds": {
+            "title": "Delay Between Follows (seconds)",
+            "type": "integer",
+            "description": "Delay in seconds between consecutive follow button clicks (e.g. 60 seconds).",
+            "default": 60,
+            "minimum": 15
+        },
+        "cookies": {
+            "title": "Session Cookies (JSON or Netscape String)",
+            "type": "array",
+            "description": "X.com session cookies to execute follow actions.",
+            "prefill": [],
+            "editor": "json"
+        },
+        "auth_token": {
+            "title": "auth_token (Optional direct cookie)",
+            "type": "string",
+            "description": "Direct X.com auth_token value.",
+            "editor": "textfield"
+        },
+        "ct0": {
+            "title": "ct0 (Optional direct cookie)",
+            "type": "string",
+            "description": "Direct X.com ct0 value.",
+            "editor": "textfield"
+        },
+        "supabaseUrl": {
+            "title": "Supabase Project URL",
+            "type": "string",
+            "description": "Supabase project URL.",
+            "editor": "textfield"
+        },
+        "supabaseAnonKey": {
+            "title": "Supabase Anon Key",
+            "type": "string",
+            "description": "Supabase API key.",
+            "editor": "textfield"
+        }
+    },
+    "required": []
+}

@@ -1,0 +1,10 @@
+{
+    "$schema": "https://apify.com/schemas/v1/actor.ide.json",
+    "actorSpecification": 1,
+    "name": "actor-4-following-checker",
+    "title": "Actor 4: User Following Deduplicator",
+    "description": "Extracts accounts you currently follow from x.com/{myUsername}/following and excludes them from ready_to_follow leads in Supabase.",
+    "version": "1.0.0",
+    "input": "./input_schema.json",
+    "dockerfile": "./Dockerfile"
+}

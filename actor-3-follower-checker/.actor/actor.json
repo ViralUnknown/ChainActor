@@ -1,0 +1,10 @@
+{
+    "$schema": "https://apify.com/schemas/v1/actor.ide.json",
+    "actorSpecification": 1,
+    "name": "actor-3-follower-checker",
+    "title": "Actor 3: Nigerian Accounts Follower & Ratio Checker",
+    "description": "Checks follower & following counts, enforces >= 200 followers and 1:3 ratio, deletes non-matching leads from Supabase.",
+    "version": "1.0.0",
+    "input": "./input_schema.json",
+    "dockerfile": "./Dockerfile"
+}

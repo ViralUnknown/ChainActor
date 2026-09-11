@@ -1,0 +1,18 @@
+{
+    "$schema": "https://apify.com/schemas/v1/actor.ide.json",
+    "actorSpecification": 1,
+    "name": "about-info-scraper",
+    "title": "About Info Scraper for X / Twitter",
+    "description": "Scrapes profile 'About' metadata (Account based in, Connected via) from X / Twitter using Playwright and streams results to Apify Dataset and optional Supabase instance.",
+    "version": "1.0.0",
+    "meta": {
+        "templateId": "js-start",
+        "generatedBy": "Antigravity with Mythos 5"
+    },
+    "inputSchema": "./input_schema.json",
+    "outputSchema": "./output_schema.json",
+    "storages": {
+        "dataset": "./dataset_schema.json"
+    },
+    "dockerfile": "../Dockerfile"
+}

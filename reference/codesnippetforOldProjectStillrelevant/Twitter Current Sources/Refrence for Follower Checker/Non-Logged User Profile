@@ -1,0 +1,87 @@
+<div class="@container flex flex-col gap-3 px-4 [--profile-avatar-size:clamp(48px,25cqw,136px)]">
+    <div class="flex flex-col gap-1">
+        <div class="relative flex min-h-[calc(var(--profile-avatar-size)/2)] items-start justify-end pt-2"><a
+                aria-label="Opens profile photo"
+                class="absolute top-0 left-0 block size-(--profile-avatar-size) -translate-y-1/2 transition duration-200 hover:brightness-90"
+                href="/omoboriowo28929/photo">
+                <div class="min-size flex overflow-hidden rounded-full bg-background p-1 aspect-square size-full">
+                    <div class="flex size-full bg-gray-300 overflow-hidden rounded-full"><img alt="user avatar"
+                            class="size-full brightness-100 [dynamic-range-limit:standard]" loading="lazy"
+                            src="https://pbs.twimg.com/profile_images/2034585088432754688/VMFrOoyt_400x400.jpg"
+                            draggable="false"></div>
+                </div>
+            </a></div>
+        <div class="overflow-hidden flex-col items-start gap-0">
+            <div class="flex max-w-full shrink-0 items-center gap-1">
+                <div
+                    class="font-chirp max-w-full whitespace-pre-wrap break-all text-text line-clamp-1 text-headline1 font-bold">
+                    OMOBORIOWO ABDULLAHI</div>
+            </div>
+            <div class="flex min-w-0 items-center gap-2">
+                <div
+                    class="font-chirp max-w-full whitespace-pre-wrap break-words text-gray-700 [font-feature-settings:'ss01'] line-clamp-1 text-body font-normal">
+                    @OMOBORIOWO28929</div>
+            </div>
+        </div>
+    </div>
+    <div dir="auto" class="font-chirp max-w-full whitespace-pre-wrap break-words text-text text-body font-normal"><a
+            class="font-chirp max-w-full whitespace-pre-wrap break-words text-blue-500 text-[length:inherit] font-normal hover:underline"
+            href="https://x.com/hashtag/Linguist">#Linguist</a><span
+            class="font-chirp max-w-full whitespace-pre-wrap break-words text-inherit text-[length:inherit] font-normal">
+        </span><a
+            class="font-chirp max-w-full whitespace-pre-wrap break-words text-blue-500 text-[length:inherit] font-normal hover:underline"
+            href="https://x.com/hashtag/Communicator">#Communicator</a><span
+            class="font-chirp max-w-full whitespace-pre-wrap break-words text-inherit text-[length:inherit] font-normal">
+        </span><a
+            class="font-chirp max-w-full whitespace-pre-wrap break-words text-blue-500 text-[length:inherit] font-normal hover:underline"
+            href="https://x.com/hashtag/Digital">#Digital</a><span
+            class="font-chirp max-w-full whitespace-pre-wrap break-words text-inherit text-[length:inherit] font-normal">
+            Media Expert
+        </span><a
+            class="font-chirp max-w-full whitespace-pre-wrap break-words text-blue-500 text-[length:inherit] font-normal hover:underline"
+            href="https://x.com/hashtag/Tech">#Tech</a><span
+            class="font-chirp max-w-full whitespace-pre-wrap break-words text-inherit text-[length:inherit] font-normal">
+            Enthusiasts
+            Truth is a priority 💯
+            GGMU 💘</span></div>
+    <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <div class="flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                data-icon="icon-location-stroke" viewBox="0 0 24 24" width="1em" height="1em" display="flex" role="img"
+                class="h-[18px] w-[18px] text-gray-700">
+                <path
+                    d="M12 7c-1.93 0-3.5 1.57-3.5 3.5S10.07 14 12 14s3.5-1.57 3.5-3.5S13.93 7 12 7zm0 5c-.827 0-1.5-.673-1.5-1.5S11.173 9 12 9s1.5.673 1.5 1.5S12.827 12 12 12zm0-10c-4.687 0-8.5 3.813-8.5 8.5 0 5.967 7.621 11.116 7.945 11.332l.555.37.555-.37c.324-.216 7.945-5.365 7.945-11.332C20.5 5.813 16.687 2 12 2zm0 17.77c-1.665-1.241-6.5-5.196-6.5-9.27C5.5 6.916 8.416 4 12 4s6.5 2.916 6.5 6.5c0 4.073-4.835 8.028-6.5 9.27z">
+                </path>
+            </svg>
+            <div class="font-chirp max-w-full whitespace-pre-wrap break-words text-gray-700 text-body font-normal">
+                Nigeria</div>
+        </div>
+        <div class="flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                data-icon="icon-calendar" viewBox="0 0 24 24" width="1em" height="1em" display="flex" role="img"
+                class="h-[18px] w-[18px] text-gray-700">
+                <path
+                    d="M7 4V3h2v1h6V3h2v1h1.5C19.89 4 21 5.12 21 6.5v12c0 1.38-1.11 2.5-2.5 2.5h-13C4.12 21 3 19.88 3 18.5v-12C3 5.12 4.12 4 5.5 4H7zm0 2H5.5c-.27 0-.5.22-.5.5v12c0 .28.23.5.5.5h13c.28 0 .5-.22.5-.5v-12c0-.28-.22-.5-.5-.5H17v1h-2V6H9v1H7V6zm0 6h2v-2H7v2zm0 4h2v-2H7v2zm4-4h2v-2h-2v2zm0 4h2v-2h-2v2zm4-4h2v-2h-2v2z">
+                </path>
+            </svg>
+            <div class="font-chirp max-w-full whitespace-pre-wrap break-words text-gray-700 text-body font-normal">
+                Joined September 2024</div>
+        </div>
+    </div>
+    <div class="flex flex-wrap items-center gap-5"><a class="text-text hover:underline"
+            href="/omoboriowo28929/following">
+            <div class="flex items-center gap-1">
+                <div class="font-chirp max-w-full whitespace-pre-wrap break-words text-text text-subtext1 font-bold">
+                    1,568</div>
+                <div
+                    class="font-chirp max-w-full whitespace-pre-wrap break-words text-gray-700 text-subtext1 font-normal">
+                    Following</div>
+            </div>
+        </a><a class="text-text hover:underline" href="/omoboriowo28929/verified_followers">
+            <div class="flex items-center gap-1">
+                <div class="font-chirp max-w-full whitespace-pre-wrap break-words text-text text-subtext1 font-bold">
+                    1,096</div>
+                <div
+                    class="font-chirp max-w-full whitespace-pre-wrap break-words text-gray-700 text-subtext1 font-normal">
+                    Followers</div>
+            </div>
+        </a></div>
+</div>

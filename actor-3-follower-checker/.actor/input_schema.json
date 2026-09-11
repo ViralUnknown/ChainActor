@@ -1,0 +1,47 @@
+{
+    "title": "Actor 3: Follower Checker Input",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "batchSize": {
+            "title": "Batch Size",
+            "type": "integer",
+            "description": "Number of Nigerian accounts to process from Supabase per run.",
+            "default": 50,
+            "minimum": 1
+        },
+        "minFollowers": {
+            "title": "Minimum Followers Required",
+            "type": "integer",
+            "description": "Accounts with fewer followers than this threshold are deleted.",
+            "default": 200
+        },
+        "maxConcurrency": {
+            "title": "Max Concurrency Workers",
+            "type": "integer",
+            "description": "Number of concurrent browser contexts checking profiles.",
+            "default": 5,
+            "minimum": 1,
+            "maximum": 10
+        },
+        "delayBetweenRequests": {
+            "title": "Delay Between Requests (ms)",
+            "type": "integer",
+            "description": "Delay between requests per worker.",
+            "default": 1500
+        },
+        "supabaseUrl": {
+            "title": "Supabase Project URL",
+            "type": "string",
+            "description": "Supabase project URL.",
+            "editor": "textfield"
+        },
+        "supabaseAnonKey": {
+            "title": "Supabase Anon Key",
+            "type": "string",
+            "description": "Supabase API key.",
+            "editor": "textfield"
+        }
+    },
+    "required": []
+}

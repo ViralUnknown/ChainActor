@@ -1,0 +1,10 @@
+{
+    "$schema": "https://apify.com/schemas/v1/actor.ide.json",
+    "actorSpecification": 1,
+    "name": "actor-1-commenter-scraper",
+    "title": "Actor 1: Nigerian Creator Inspiration Commenter Scraper",
+    "description": "Navigates to X Creator Inspiration top posts for Nigeria, opens each post in a new tab, scrapes all commenters, and streams them into Supabase.",
+    "version": "1.0.0",
+    "input": "./input_schema.json",
+    "dockerfile": "./Dockerfile"
+}

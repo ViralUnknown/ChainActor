@@ -1,0 +1,112 @@
+{
+    "$schema": "https://apify.com/schemas/v1/input.ide.json",
+    "title": "About Info Scraper Input Schema",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "usernames": {
+            "title": "Target Usernames",
+            "type": "array",
+            "description": "List of X/Twitter handles to scrape. Accepted formats (mix and match freely): plain handle (elonmusk), with @ prefix (@elonmusk), or full profile URL (https://x.com/elonmusk or https://twitter.com/elonmusk). Add one entry per line in form view, or switch to JSON for bulk paste.",
+            "editor": "stringList",
+            "items": {
+                "type": "string"
+            },
+            "prefill": [
+                "elonmusk"
+            ]
+        },
+        "cookies": {
+            "title": "Session Cookies / Cookie Strings",
+            "type": "array",
+            "description": "List of raw cookie strings or Playwright storageState cookie objects for X/Twitter authentication.",
+            "editor": "json"
+        },
+        "auth_token": {
+            "title": "Auth Token (Direct)",
+            "type": "string",
+            "description": "Your X/Twitter auth_token cookie value.",
+            "editor": "textfield"
+        },
+        "ct0": {
+            "title": "CT0 Token (Direct)",
+            "type": "string",
+            "description": "Your X/Twitter ct0 cookie value.",
+            "editor": "textfield"
+        },
+        "delayBetweenRequests": {
+            "title": "Delay Between Requests (ms)",
+            "type": "integer",
+            "description": "Pause between each profile visit in milliseconds to reclaim memory and throttle requests.",
+            "editor": "number",
+            "default": 1600,
+            "minimum": 500
+        },
+        "restMinutes": {
+            "title": "Rest Cooldown (Minutes)",
+            "type": "integer",
+            "description": "Rest duration between retry cycles.",
+            "editor": "number",
+            "default": 1,
+            "minimum": 0
+        },
+        "batchSize": {
+            "title": "Batch Size",
+            "type": "integer",
+            "description": "Number of profiles per batch before upserting/flushing.",
+            "editor": "number",
+            "default": 25,
+            "minimum": 1
+        },
+        "executionMode": {
+            "title": "Execution Mode",
+            "type": "string",
+            "description": "Run sequentially using 1 browser or in parallel using multiple cookie sessions.",
+            "editor": "select",
+            "enum": [
+                "sequential",
+                "parallel"
+            ],
+            "default": "sequential"
+        },
+        "regionFilter": {
+            "title": "Region Filter",
+            "type": "string",
+            "description": "Optional filter for 'accountBasedIn' field (e.g. 'United States').",
+            "editor": "textfield",
+            "default": ""
+        },
+        "maxRetries": {
+            "title": "Max Retries",
+            "type": "integer",
+            "description": "Number of retry passes for profiles returning N/A or Error.",
+            "editor": "number",
+            "default": 1,
+            "minimum": 0
+        },
+        "supabaseUrl": {
+            "title": "Supabase Project URL",
+            "type": "string",
+            "description": "Optional Supabase Project URL for direct cloud streaming persistence.",
+            "editor": "textfield"
+        },
+        "supabaseAnonKey": {
+            "title": "Supabase Anon/Public Key",
+            "type": "string",
+            "description": "Optional Supabase Anonymous API Key for direct cloud streaming persistence.",
+            "editor": "hidden"
+        },
+        "proxyConfiguration": {
+            "title": "Proxy Configuration",
+            "type": "object",
+            "description": "Proxy settings for anti-bot protection.",
+            "editor": "proxy",
+            "default": {
+                "useApifyProxy": false
+            }
+        }
+    },
+    "required": [
+        "usernames"
+    ]
+}

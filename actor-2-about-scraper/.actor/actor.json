@@ -1,0 +1,10 @@
+{
+    "$schema": "https://apify.com/schemas/v1/actor.ide.json",
+    "actorSpecification": 1,
+    "name": "actor-2-about-scraper",
+    "title": "Actor 2: Nigeria /about Location Filter Scraper",
+    "description": "Reads pending commenters from Supabase, visits their /about pages using Brave browser, checks for Nigerian origin, and deletes non-Nigerian leads.",
+    "version": "1.0.0",
+    "input": "./input_schema.json",
+    "dockerfile": "./Dockerfile"
+}
