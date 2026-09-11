@@ -1,0 +1,44 @@
+2026-09-11T23:50:25.302Z ACTOR: Pulling container image of build HUcSF9EIoL0KdSMbA from registry.
+2026-09-11T23:50:43.744Z ACTOR: Creating container.
+2026-09-11T23:50:43.827Z ACTOR: Starting container.
+2026-09-11T23:50:43.828Z ACTOR: Running under "LIMITED_PERMISSIONS".
+2026-09-11T23:50:43.940Z Running on architecture: x86_64
+2026-09-11T23:50:43.941Z Will run command: xvfb-run -a -s "-ac -screen 0 1920x1080x24+32 -nolisten tcp" /bin/bash -o pipefail -c npm start
+2026-09-11T23:50:44.799Z
+2026-09-11T23:50:44.800Z > actor-1-commenter-scraper@1.0.0 start
+2026-09-11T23:50:44.801Z > node src/main.js
+2026-09-11T23:50:44.802Z
+2026-09-11T23:50:45.799Z INFO  System info {"apifyVersion":"3.7.2","apifyClientVersion":"2.25.0","crawleeVersion":"3.18.1","osType":"Linux","nodeVersion":"v22.23.2"}
+2026-09-11T23:50:45.954Z INFO  Starting Actor 1: Nigerian Creator Inspiration Commenter Scraper {"maxPosts":15,"verificationFilter":"verified","delayBetweenScrolls":1800}
+2026-09-11T23:50:45.959Z INFO  Supabase client initialized successfully.
+2026-09-11T23:50:45.960Z INFO  Connecting to Browserless... {"endpoint":"wss://production-sfo.browserless.io?token=2VF5zeHqJjrhVexdc6d8171efdaf32d846fc4b820b4515dec"}
+2026-09-11T23:50:46.325Z node:internal/modules/run_main:123
+2026-09-11T23:50:46.326Z     triggerUncaughtException(
+2026-09-11T23:50:46.326Z     ^
+2026-09-11T23:50:46.327Z
+2026-09-11T23:50:46.328Z browserType.connectOverCDP: WebSocket error: wss://production-sfo.browserless.io/ 401 Unauthorized
+2026-09-11T23:50:46.328Z
+2026-09-11T23:50:46.329Z Invalid API key. Please check your API key and try again. (requestId: 274ccbe3-0bc1-40d5-b47c-5e3c0d53538a)
+2026-09-11T23:50:46.330Z Call log:
+2026-09-11T23:50:46.330Z   - <ws connecting> wss://production-sfo.browserless.io/
+2026-09-11T23:50:46.331Z   - <ws unexpected response> wss://production-sfo.browserless.io/ 401 Unauthorized
+2026-09-11T23:50:46.332Z
+2026-09-11T23:50:46.333Z Invalid API key. Please check your API key and try again. (requestId: 274ccbe3-0bc1-40d5-b47c-5e3c0d53538a)
+2026-09-11T23:50:46.334Z   - <ws error> wss://production-sfo.browserless.io/ error WebSocket was closed before the connection was established
+2026-09-11T23:50:46.334Z   - <ws connect error> wss://production-sfo.browserless.io/ WebSocket was closed before the connection was established
+2026-09-11T23:50:46.336Z   - <ws disconnected> wss://production-sfo.browserless.io/ code=1006 reason=
+2026-09-11T23:50:46.337Z
+2026-09-11T23:50:46.338Z     at /home/myuser/src/main.js:113:30 {
+2026-09-11T23:50:46.338Z   log: [
+2026-09-11T23:50:46.339Z     '  - <ws connecting> wss://production-sfo.browserless.io/',
+2026-09-11T23:50:46.340Z     '  - <ws unexpected response> wss://production-sfo.browserless.io/ 401 Unauthorized\n' +
+2026-09-11T23:50:46.341Z       '\r\n' +
+2026-09-11T23:50:46.342Z       'Invalid API key. Please check your API key and try again. (requestId: 274ccbe3-0bc1-40d5-b47c-5e3c0d53538a)',
+2026-09-11T23:50:46.343Z     '  - <ws error> wss://production-sfo.browserless.io/ error WebSocket was closed before the connection was established',
+2026-09-11T23:50:46.343Z     '  - <ws connect error> wss://production-sfo.browserless.io/ WebSocket was closed before the connection was established',
+2026-09-11T23:50:46.344Z     '  - <ws disconnected> wss://production-sfo.browserless.io/ code=1006 reason='
+2026-09-11T23:50:46.345Z   ],
+2026-09-11T23:50:46.346Z   name: 'Error'
+2026-09-11T23:50:46.347Z }
+2026-09-11T23:50:46.347Z
+2026-09-11T23:50:46.348Z Node.js v22.23.2

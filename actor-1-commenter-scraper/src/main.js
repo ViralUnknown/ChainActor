@@ -102,22 +102,30 @@ if (ct0) {
 }
 
 // ── Connect to Browserless or Launch Local Container Browser ────────────────
-let browser;
-let context;
+let browser = null;
+let context = null;
 
 const cleanBrowserlessKey = (browserlessApiKey || process.env.BROWSERLESS_API_KEY || '').trim();
 
 if (cleanBrowserlessKey) {
-    const wsEndpoint = `${browserlessEndpoint}?token=${cleanBrowserlessKey}&timeout=600000&stealth=true`;
-    log.info(`Connecting to Browserless...`, { endpoint: browserlessEndpoint });
-    browser = await chromium.connectOverCDP(wsEndpoint);
-    log.info('✓ Connected to Browserless. Watch live at: https://chrome.browserless.io/sessions');
-    context = await browser.newContext({
-        viewport: { width: 1280, height: 900 },
-        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-    });
-} else {
-    log.info('No browserlessApiKey provided. Launching local Playwright Chrome in container...');
+    try {
+        const wsEndpoint = `${browserlessEndpoint}?token=${cleanBrowserlessKey}&timeout=600000&stealth=true`;
+        log.info(`Attempting Browserless connection...`, { endpoint: browserlessEndpoint });
+        browser = await chromium.connectOverCDP(wsEndpoint);
+        log.info('✓ Connected to Browserless. Watch live at: https://chrome.browserless.io/sessions');
+        context = await browser.newContext({
+            viewport: { width: 1280, height: 900 },
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        });
+    } catch (err) {
+        log.warning(`Browserless connection failed (${err.message}). Falling back to container local Playwright Chrome...`);
+        browser = null;
+        context = null;
+    }
+}
+
+if (!browser) {
+    log.info('Launching local Playwright Chrome in container...');
     browser = await chromium.launch({
         headless: true,
         args: [
