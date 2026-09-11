@@ -117,12 +117,13 @@ if (!pendingUsers || pendingUsers.length === 0) {
 
 log.info(`Found ${pendingUsers.length} pending profiles to check.`);
 
-// ── Launch Brave Browser Persistent Context ──────────────────────────────────
+// ── Launch Browser Persistent Context ─────────────────────────────────────────
 const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'brave-actor2-'));
 const braveExecutablePath = process.env.BRAVE_PATH || '/usr/bin/brave-browser';
+const executablePath = fs.existsSync(braveExecutablePath) ? braveExecutablePath : undefined;
 
 const context = await chromium.launchPersistentContext(userDataDir, {
-    executablePath: braveExecutablePath,
+    ...(executablePath ? { executablePath } : {}),
     headless: true,
     args: [
         '--disable-dev-shm-usage',

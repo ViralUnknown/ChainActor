@@ -101,22 +101,38 @@ if (ct0) {
     cookiesToInject.push({ name: 'ct0', value: ct0.trim(), domain: '.x.com', path: '/', secure: true, sameSite: 'Lax' });
 }
 
-// ── Connect to Browserless ───────────────────────────────────────────────────
-if (!browserlessApiKey) {
-    throw new Error('browserlessApiKey is required. Add it to input or set BROWSERLESS_API_KEY env var.');
+// ── Connect to Browserless or Launch Local Container Browser ────────────────
+let browser;
+let context;
+
+const cleanBrowserlessKey = (browserlessApiKey || process.env.BROWSERLESS_API_KEY || '').trim();
+
+if (cleanBrowserlessKey) {
+    const wsEndpoint = `${browserlessEndpoint}?token=${cleanBrowserlessKey}&timeout=600000&stealth=true`;
+    log.info(`Connecting to Browserless...`, { endpoint: browserlessEndpoint });
+    browser = await chromium.connectOverCDP(wsEndpoint);
+    log.info('✓ Connected to Browserless. Watch live at: https://chrome.browserless.io/sessions');
+    context = await browser.newContext({
+        viewport: { width: 1280, height: 900 },
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+    });
+} else {
+    log.info('No browserlessApiKey provided. Launching local Playwright Chrome in container...');
+    browser = await chromium.launch({
+        headless: true,
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-gpu',
+            '--disable-blink-features=AutomationControlled',
+        ],
+    });
+    context = await browser.newContext({
+        viewport: { width: 1280, height: 900 },
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+    });
 }
-
-// 10-minute session timeout — increase if scraping very large posts
-const wsEndpoint = `${browserlessEndpoint}?token=${browserlessApiKey}&timeout=600000&stealth=true`;
-log.info(`Connecting to Browserless...`, { endpoint: browserlessEndpoint });
-
-let browser = await chromium.connectOverCDP(wsEndpoint);
-log.info('✓ Connected to Browserless. Watch live at: https://chrome.browserless.io/sessions');
-
-const context = await browser.newContext({
-    viewport: { width: 1280, height: 900 },
-    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-});
 
 // Inject cookies
 if (cookiesToInject.length > 0) {

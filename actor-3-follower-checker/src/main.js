@@ -2,6 +2,7 @@ import { Actor, log } from 'apify';
 import { chromium } from 'playwright';
 import { createClient } from '@supabase/supabase-js';
 import { setTimeout } from 'node:timers/promises';
+import fs from 'node:fs';
 
 Actor.on('aborting', async () => {
     log.warning('Actor aborting signal received. Exiting gracefully...');
@@ -59,10 +60,11 @@ function parseCount(text) {
     return parseInt(clean, 10) || 0;
 }
 
-// ── Launch Master Brave Instance ─────────────────────────────────────────────
+// ── Launch Browser Instance ──────────────────────────────────────────────────
 const braveExecutablePath = process.env.BRAVE_PATH || '/usr/bin/brave-browser';
+const executablePath = fs.existsSync(braveExecutablePath) ? braveExecutablePath : undefined;
 const browser = await chromium.launch({
-    executablePath: braveExecutablePath,
+    ...(executablePath ? { executablePath } : {}),
     headless: true,
     args: [
         '--disable-dev-shm-usage',

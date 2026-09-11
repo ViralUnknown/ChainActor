@@ -100,13 +100,14 @@ if (ct0) {
     });
 }
 
-// ── Launch Master Brave Instance ─────────────────────────────────────────────
+// ── Launch Browser Persistent Context ─────────────────────────────────────────
 const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'brave-actor4-'));
 const braveExecutablePath = process.env.BRAVE_PATH || '/usr/bin/brave-browser';
+const executablePath = fs.existsSync(braveExecutablePath) ? braveExecutablePath : undefined;
 
-log.info('Launching Brave Persistent Context for Following Check...', { userDataDir });
+log.info('Launching Browser Persistent Context for Following Check...', { userDataDir });
 const context = await chromium.launchPersistentContext(userDataDir, {
-    executablePath: braveExecutablePath,
+    ...(executablePath ? { executablePath } : {}),
     headless: true,
     args: [
         '--disable-dev-shm-usage',

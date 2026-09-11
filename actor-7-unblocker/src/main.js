@@ -123,12 +123,13 @@ if (!candidates || candidates.length === 0) {
 
 log.info(`Found ${candidates.length} accounts eligible to unblock.`);
 
-// ── Launch Master Brave Instance ─────────────────────────────────────────────
+// ── Launch Browser Persistent Context ─────────────────────────────────────────
 const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'brave-actor7-'));
 const braveExecutablePath = process.env.BRAVE_PATH || '/usr/bin/brave-browser';
+const executablePath = fs.existsSync(braveExecutablePath) ? braveExecutablePath : undefined;
 
 const context = await chromium.launchPersistentContext(userDataDir, {
-    executablePath: braveExecutablePath,
+    ...(executablePath ? { executablePath } : {}),
     headless: true,
     args: [
         '--disable-dev-shm-usage',

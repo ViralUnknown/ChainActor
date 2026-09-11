@@ -56,6 +56,19 @@
             "type": "string",
             "description": "Supabase API key (overrides SUPABASE_ANON_KEY env var).",
             "editor": "textfield"
+        },
+        "browserlessApiKey": {
+            "title": "Browserless API Key (Optional)",
+            "type": "string",
+            "description": "Optional Browserless.io API key for remote CDP session. If omitted, uses container local Chrome.",
+            "editor": "textfield"
+        },
+        "browserlessEndpoint": {
+            "title": "Browserless Endpoint (Optional)",
+            "type": "string",
+            "description": "Browserless WebSocket endpoint URL.",
+            "default": "wss://chrome.browserless.io",
+            "editor": "textfield"
         }
     },
     "required": []
