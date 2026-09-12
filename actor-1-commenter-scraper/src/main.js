@@ -200,50 +200,58 @@ await setTimeout(4000);
 async function ensureNigeriaSelected(page) {
     log.info('Checking if Nigeria country filter is active...');
 
-    const isAlreadyNigeria = await page.evaluate(() => {
+    const headerText = await page.evaluate(() => {
         const buttons = Array.from(document.querySelectorAll('button'));
-        const ngMainBtn = buttons.find((b) => {
-            const txt = b.textContent || '';
-            return txt.includes('🇳🇬') || txt.includes('NGA');
+        const trigger = buttons.find((b) => {
+            const txt = (b.textContent || '').trim();
+            return txt.includes('NGA') || txt.includes('All Countries') || txt.includes('Country') || txt.includes('Filter by country');
         });
-        if (ngMainBtn) return true;
-        const ngItem = buttons.find((b) => (b.textContent || '').includes('Nigeria'));
-        if (ngItem && ngItem.querySelector('svg[data-icon="icon-checkmark"]')) return true;
-        return false;
+        return trigger ? trigger.textContent.trim() : '';
     });
+
+    log.info(`Country filter header button text: "${headerText}"`);
+
+    const isAlreadyNigeria = headerText.includes('NGA') || headerText.includes('🇳🇬 NGA');
 
     if (isAlreadyNigeria) {
         log.info('Nigeria filter already active.');
-        return;
-    }
-
-    log.info('Opening country menu to select Nigeria...');
-    try {
-        const opened = await page.evaluate(() => {
-            const buttons = Array.from(document.querySelectorAll('button'));
-            const trigger = buttons.find((b) => {
-                const txt = b.textContent || '';
-                return txt.includes('All Countries') || txt.includes('Country') || txt.includes('🌎');
-            });
-            if (trigger) { trigger.click(); return true; }
-            return false;
-        });
-
-        if (opened) {
-            await setTimeout(2500);
-            await page.evaluate(() => {
+    } else {
+        log.info('Nigeria filter not active. Opening country selection menu...');
+        try {
+            const opened = await page.evaluate(() => {
                 const buttons = Array.from(document.querySelectorAll('button'));
-                const ngOption = buttons.find((b) => {
-                    const txt = b.textContent || '';
-                    return txt.includes('🇳🇬') || txt.includes('Nigeria');
+                const trigger = buttons.find((b) => {
+                    const txt = (b.textContent || '').trim();
+                    return txt.includes('All Countries') || txt.includes('Country') || txt.includes('🌎');
                 });
-                if (ngOption) ngOption.click();
+                if (trigger) { trigger.click(); return true; }
+                return false;
             });
-            await setTimeout(3000);
-            log.info('Nigeria selected.');
+
+            if (opened) {
+                await setTimeout(2500);
+                const clickedNg = await page.evaluate(() => {
+                    const buttons = Array.from(document.querySelectorAll('button'));
+                    const ngOption = buttons.find((b) => {
+                        const txt = (b.textContent || '').trim();
+                        return txt.includes('Nigeria') || (txt.includes('🇳🇬') && !txt.includes('NGA'));
+                    });
+                    if (ngOption) { ngOption.click(); return true; }
+                    return false;
+                });
+
+                if (clickedNg) {
+                    await setTimeout(4000);
+                    log.info('✓ Nigeria country filter selected successfully.');
+                } else {
+                    log.warning('Could not find Nigeria option in country menu.');
+                }
+            } else {
+                log.warning('Could not find country selector trigger button.');
+            }
+        } catch (e) {
+            log.warning(`Country selection note: ${e.message}`);
         }
-    } catch (e) {
-        log.warning(`Country selection note: ${e.message}`);
     }
 }
 
@@ -255,13 +263,15 @@ async function setSortToMostReplies(page) {
     try {
         const switched = await page.evaluate(() => {
             const buttons = Array.from(document.querySelectorAll('button'));
-            const repliesBtn = buttons.find((b) => (b.textContent || '').includes('Most Replies'));
+            const repliesBtn = buttons.find((b) => (b.textContent || '').trim().includes('Most Replies'));
             if (repliesBtn) { repliesBtn.click(); return true; }
             return false;
         });
         if (switched) {
-            await setTimeout(3000);
-            log.info('"Most Replies" sort applied.');
+            await setTimeout(4000);
+            log.info('✓ "Most Replies" sort applied successfully.');
+        } else {
+            log.warning('Could not find "Most Replies" button.');
         }
     } catch (e) {
         log.warning(`Could not switch sort: ${e.message}`);
@@ -269,6 +279,15 @@ async function setSortToMostReplies(page) {
 }
 
 await setSortToMostReplies(homePage);
+
+// ── Step 3.5: Capture & Store Navigation Screenshot ──────────────────────────
+try {
+    const screenshot = await homePage.screenshot({ type: 'png' });
+    await Actor.setValue('INSPIRATION_FILTERED.png', screenshot, { contentType: 'image/png' });
+    log.info('✓ Saved screenshot to Key-Value store artifact: INSPIRATION_FILTERED.png');
+} catch (screenErr) {
+    log.warning(`Could not save screenshot artifact: ${screenErr.message}`);
+}
 
 // ── Step 4: Scrape Commenters from Each Post ───────────────────────────────────
 const postTab = await context.newPage();
