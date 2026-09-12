@@ -2,6 +2,7 @@ import { Actor, log } from 'apify';
 import { chromium } from 'playwright';
 import { createClient } from '@supabase/supabase-js';
 import { setTimeout } from 'node:timers/promises';
+import fs from 'node:fs';
 
 // ── Graceful Abort Handling ──────────────────────────────────────────────────
 Actor.on('aborting', async () => {
@@ -129,8 +130,17 @@ if (cleanBrowserlessKey) {
 }
 
 if (!browser) {
-    log.info('Launching local Playwright Chrome in container...');
+    const bravePath = process.env.BRAVE_PATH || '/usr/bin/brave-browser';
+    const executablePath = fs.existsSync(bravePath) ? bravePath : undefined;
+
+    if (executablePath) {
+        log.info('Launching Brave Browser with Brave Shields in container...', { executablePath });
+    } else {
+        log.info('Launching local Playwright Chrome in container...');
+    }
+
     browser = await chromium.launch({
+        ...(executablePath ? { executablePath } : {}),
         headless: true,
         args: [
             '--no-sandbox',
@@ -138,6 +148,7 @@ if (!browser) {
             '--disable-dev-shm-usage',
             '--disable-gpu',
             '--disable-blink-features=AutomationControlled',
+            '--enable-features=BraveShields',
         ],
     });
     context = await browser.newContext({
