@@ -86,6 +86,15 @@ function parseCookies(inputCookie) {
         .filter((c) => c !== null);
 }
 
+// Handle Playwright internal CDP assertions (e.g. Duplicate target) gracefully
+process.on('uncaughtException', (err) => {
+    if (err.message && err.message.includes('Duplicate target')) {
+        log.warning(`[Playwright CDP Warning] Handled duplicate target event: ${err.message}`);
+        return;
+    }
+    log.error(`Uncaught Exception: ${err.stack || err.message}`);
+});
+
 let cookiesToInject = [];
 if (Array.isArray(rawCookiesInput)) {
     for (const item of rawCookiesInput) {
@@ -121,6 +130,7 @@ if (cleanBrowserlessKey) {
         context = await browser.newContext({
             viewport: { width: 1280, height: 900 },
             userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+            serviceWorkers: 'block',
         });
     } catch (err) {
         log.warning(`Browserless connection failed (${err.message}). Falling back to container local Playwright Chrome...`);
@@ -154,6 +164,7 @@ if (!browser) {
     context = await browser.newContext({
         viewport: { width: 1280, height: 900 },
         userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        serviceWorkers: 'block',
     });
 }
 
@@ -185,18 +196,17 @@ if (supabase) {
 }
 
 // ── Step 1: Open Inspiration Page ─────────────────────────────────────────────
-const homePage = await context.newPage();
+const page = await context.newPage();
 const INSPIRATION_URL = 'https://x.com/i/jf/creators/inspiration/top_posts';
 log.info(`Navigating to: ${INSPIRATION_URL}`);
 
 try {
-    await homePage.goto(INSPIRATION_URL, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await page.goto(INSPIRATION_URL, { waitUntil: 'domcontentloaded', timeout: 60000 });
 } catch (e) {
     log.warning(`Navigation warning: ${e.message}. Continuing...`);
 }
 await setTimeout(4000);
 
-// ── Step 2: Ensure Country is Nigeria ─────────────────────────────────────────
 // ── Step 2: Ensure Country is Nigeria ─────────────────────────────────────────
 async function ensureNigeriaSelected(page) {
     log.info('Checking if Nigeria country filter is active...');
@@ -304,7 +314,7 @@ async function ensureNigeriaSelected(page) {
     }
 }
 
-await ensureNigeriaSelected(homePage);
+await ensureNigeriaSelected(page);
 
 // ── Step 3: Sort by Most Replies ───────────────────────────────────────────────
 async function setSortToMostReplies(page) {
@@ -327,26 +337,61 @@ async function setSortToMostReplies(page) {
     }
 }
 
-await setSortToMostReplies(homePage);
+await setSortToMostReplies(page);
 
 // ── Step 3.5: Capture & Store Navigation Screenshot ──────────────────────────
 try {
-    const screenshot = await homePage.screenshot({ type: 'png' });
+    const screenshot = await page.screenshot({ type: 'png' });
     await Actor.setValue('INSPIRATION_FILTERED.png', screenshot, { contentType: 'image/png' });
     log.info('✓ Saved screenshot to Key-Value store artifact: INSPIRATION_FILTERED.png');
 } catch (screenErr) {
     log.warning(`Could not save screenshot artifact: ${screenErr.message}`);
 }
 
-// ── Step 4: Scrape Commenters from Each Post ───────────────────────────────────
-const postTab = await context.newPage();
+// ── Step 4: Harvest Post URLs from Inspiration Timeline ────────────────────────
+log.info(`Harvesting up to ${maxPosts} posts from filtered Inspiration timeline...`);
+const targetPosts = [];
+const targetPostIds = new Set();
+let scrollAttempts = 0;
 
-async function scrapePostCommenters(postTab, postUrl, postId) {
+while (targetPosts.length < maxPosts && scrollAttempts < 20) {
+    const batch = await page.evaluate(() => {
+        const links = Array.from(document.querySelectorAll('article[data-testid="tweet"] a[href*="/status/"]'));
+        const posts = [];
+        for (const a of links) {
+            const href = a.getAttribute('href') || '';
+            const match = href.match(/([A-Za-z0-9_]+)\/status\/(\d+)/);
+            if (match) {
+                posts.push({ url: `https://x.com/${match[1]}/status/${match[2]}`, postId: match[2] });
+            }
+        }
+        return posts;
+    });
+
+    for (const p of batch) {
+        if (targetPosts.length >= maxPosts) break;
+        if (!targetPostIds.has(p.postId) && !alreadyScrapedPostIds.has(p.postId)) {
+            targetPostIds.add(p.postId);
+            targetPosts.push(p);
+        }
+    }
+
+    if (targetPosts.length >= maxPosts) break;
+
+    log.info(`Found ${targetPosts.length}/${maxPosts} target posts. Scrolling timeline...`);
+    await page.evaluate(() => window.scrollBy(0, 1500));
+    await setTimeout(3000);
+    scrollAttempts++;
+}
+
+log.info(`✓ Collected ${targetPosts.length} posts to scrape.`);
+
+// ── Step 5: Scrape Commenters from Each Post (Using Single Page) ─────────────
+async function scrapePostCommenters(page, postUrl, postId) {
     log.info(`[Post ${postId}] Opening: ${postUrl}`);
     const scrapedCommenters = new Map();
 
     try {
-        // Register post in Supabase first (foreign key requirement)
         if (supabase) {
             const { error: postErr } = await supabase.from('scraped_posts').upsert({
                 post_id: postId,
@@ -357,18 +402,17 @@ async function scrapePostCommenters(postTab, postUrl, postId) {
             if (postErr) log.warning(`[Supabase] scraped_posts note: ${postErr.message}`);
         }
 
-        await postTab.goto(postUrl, { waitUntil: 'domcontentloaded', timeout: 45000 });
+        await page.goto(postUrl, { waitUntil: 'domcontentloaded', timeout: 45000 });
 
-        // Wait for tweets to appear, retry with scroll if not found
         let tweetsFound = false;
         for (let attempt = 0; attempt < 3; attempt++) {
             try {
-                await postTab.waitForSelector('[data-testid="tweet"]', { timeout: 10000 });
+                await page.waitForSelector('[data-testid="tweet"]', { timeout: 10000 });
                 tweetsFound = true;
                 break;
             } catch {
                 log.info(`[Post ${postId}] Waiting for tweets (attempt ${attempt + 1}/3)...`);
-                await postTab.evaluate(() => window.scrollBy(0, 300));
+                await page.evaluate(() => window.scrollBy(0, 300));
                 await setTimeout(3000);
             }
         }
@@ -378,15 +422,14 @@ async function scrapePostCommenters(postTab, postUrl, postId) {
             return;
         }
 
-        await setTimeout(3000); // Let replies section settle
+        await setTimeout(3000);
 
         let consecutiveEmptyScrolls = 0;
         let lastHeight = 0;
         let atBottom = false;
 
         while (consecutiveEmptyScrolls < 3 && !atBottom) {
-            // Extract all visible commenters
-            const currentBatch = await postTab.evaluate(() => {
+            const currentBatch = await page.evaluate(() => {
                 const tweets = Array.from(document.querySelectorAll('[data-testid="tweet"]'));
                 const list = [];
                 const commentTweets = tweets.length > 1 ? tweets.slice(1) : [];
@@ -422,7 +465,6 @@ async function scrapePostCommenters(postTab, postUrl, postId) {
             const commenters = currentBatch.items ?? currentBatch;
             log.info(`[Post ${postId}] Scroll batch: ${currentBatch.totalTweets} tweets, ${commenters.length} parsed.`);
 
-            // Only new usernames this batch
             const newBatch = [];
             for (const user of commenters) {
                 if (verificationFilter === 'verified' && !user.isVerified) continue;
@@ -433,7 +475,6 @@ async function scrapePostCommenters(postTab, postUrl, postId) {
                 }
             }
 
-            // ── Stream to Supabase immediately ──────────────────────────────
             if (supabase && newBatch.length > 0) {
                 const rows = newBatch.map((c) => ({
                     username: c.username,
@@ -456,8 +497,7 @@ async function scrapePostCommenters(postTab, postUrl, postId) {
                 for (const row of rows) await Actor.pushData(row);
             }
 
-            // Scroll down and detect true bottom
-            const { newScrollHeight, reachedBottom } = await postTab.evaluate(() => {
+            const { newScrollHeight, reachedBottom } = await page.evaluate(() => {
                 window.scrollBy(0, 1200);
                 return {
                     newScrollHeight: document.body.scrollHeight,
@@ -478,7 +518,6 @@ async function scrapePostCommenters(postTab, postUrl, postId) {
 
         log.info(`[Post ${postId}] ✓ Done. Total unique commenters: ${scrapedCommenters.size}.`);
 
-        // Update final commenter count
         if (supabase) {
             await supabase.from('scraped_posts').upsert({
                 post_id: postId,
@@ -490,61 +529,20 @@ async function scrapePostCommenters(postTab, postUrl, postId) {
     } catch (err) {
         const msg = err.message || '';
         if (msg.includes('closed') || msg.includes('disconnected') || msg.includes('Target')) {
-            log.warning(`[Post ${postId}] Browserless session closed mid-scrape. Streamed ${scrapedCommenters.size} usernames before disconnect.`);
+            log.warning(`[Post ${postId}] Browser session closed mid-scrape. Streamed ${scrapedCommenters.size} usernames before disconnect.`);
         } else {
             log.error(`[Post ${postId}] Error: ${msg}`);
         }
     }
 }
 
-// ── Main Loop: Harvest posts from Inspiration timeline ────────────────────────
-let completedPostsCount = 0;
-const postUrlsSeen = new Set();
-let pageScrollAttempts = 0;
-
-while (completedPostsCount < maxPosts && pageScrollAttempts < 30) {
-    const foundPosts = await homePage.evaluate(() => {
-        const links = Array.from(document.querySelectorAll('article[data-testid="tweet"] a[href*="/status/"]'));
-        const posts = [];
-        for (const a of links) {
-            const href = a.getAttribute('href') || '';
-            const match = href.match(/([A-Za-z0-9_]+)\/status\/(\d+)/);
-            if (match) {
-                posts.push({ url: `https://x.com/${match[1]}/status/${match[2]}`, postId: match[2] });
-            }
-        }
-        return posts;
-    });
-
-    for (const post of foundPosts) {
-        if (completedPostsCount >= maxPosts) break;
-        if (postUrlsSeen.has(post.postId) || alreadyScrapedPostIds.has(post.postId)) continue;
-
-        postUrlsSeen.add(post.postId);
-        alreadyScrapedPostIds.add(post.postId);
-
-        try {
-            await scrapePostCommenters(postTab, post.url, post.postId);
-        } catch (outerErr) {
-            const msg = outerErr.message || '';
-            if (msg.includes('closed') || msg.includes('disconnected') || msg.includes('Target')) {
-                log.error('Browserless browser session was closed. Cannot continue. Please re-run the actor.');
-                break;
-            }
-            log.error(`Unexpected error on post ${post.postId}: ${msg}`);
-        }
-        completedPostsCount++;
-        log.info(`Progress: ${completedPostsCount}/${maxPosts} posts completed.`);
-    }
-
-    if (completedPostsCount >= maxPosts) break;
-
-    log.info('Scrolling Inspiration timeline for more posts...');
-    await homePage.evaluate(() => window.scrollBy(0, 1500));
-    await setTimeout(3000);
-    pageScrollAttempts++;
+let completedCount = 0;
+for (const post of targetPosts) {
+    await scrapePostCommenters(page, post.url, post.postId);
+    completedCount++;
+    log.info(`Progress: ${completedCount}/${targetPosts.length} posts completed.`);
 }
 
-log.info(`Actor 1 finished. Completed ${completedPostsCount} posts.`);
+log.info(`Actor 1 finished. Completed ${completedCount} posts.`);
 await browser.close();
 await Actor.exit();
