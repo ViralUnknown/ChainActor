@@ -260,9 +260,10 @@ async function setSortToMostReplies(page) {
 await setSortToMostReplies(homePage);
 
 // ── Step 4: Scrape Commenters from Each Post ───────────────────────────────────
-async function scrapePostCommenters(postUrl, postId) {
+const postTab = await context.newPage();
+
+async function scrapePostCommenters(postTab, postUrl, postId) {
     log.info(`[Post ${postId}] Opening: ${postUrl}`);
-    const postTab = await context.newPage();
     const scrapedCommenters = new Map();
 
     try {
@@ -295,7 +296,6 @@ async function scrapePostCommenters(postUrl, postId) {
 
         if (!tweetsFound) {
             log.warning(`[Post ${postId}] No tweets found after 3 attempts. Skipping.`);
-            await postTab.close();
             return;
         }
 
@@ -415,8 +415,6 @@ async function scrapePostCommenters(postUrl, postId) {
         } else {
             log.error(`[Post ${postId}] Error: ${msg}`);
         }
-    } finally {
-        try { await postTab.close(); } catch { /* already closed */ }
     }
 }
 
@@ -447,7 +445,7 @@ while (completedPostsCount < maxPosts && pageScrollAttempts < 30) {
         alreadyScrapedPostIds.add(post.postId);
 
         try {
-            await scrapePostCommenters(post.url, post.postId);
+            await scrapePostCommenters(postTab, post.url, post.postId);
         } catch (outerErr) {
             const msg = outerErr.message || '';
             if (msg.includes('closed') || msg.includes('disconnected') || msg.includes('Target')) {

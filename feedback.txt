@@ -1,31 +1,82 @@
-2026-09-12T00:41:14.893Z ACTOR: Pulling container image of build SE9Eh9krG9RoYwvUC from registry.
-2026-09-12T00:41:30.746Z ACTOR: Creating container.
-2026-09-12T00:41:30.812Z ACTOR: Starting container.
-2026-09-12T00:41:30.814Z ACTOR: Running under "LIMITED_PERMISSIONS".
-2026-09-12T00:41:30.888Z Running on architecture: x86_64
-2026-09-12T00:41:30.890Z Will run command: xvfb-run -a -s "-ac -screen 0 1920x1080x24+32 -nolisten tcp" /bin/bash -o pipefail -c npm start
-2026-09-12T00:41:31.156Z
-2026-09-12T00:41:31.159Z > actor-1-commenter-scraper@1.0.0 start
-2026-09-12T00:41:31.160Z > node src/main.js
-2026-09-12T00:41:31.162Z
-2026-09-12T00:41:32.075Z INFO  System info {"apifyVersion":"3.7.2","apifyClientVersion":"2.25.0","crawleeVersion":"3.18.1","osType":"Linux","nodeVersion":"v22.23.2"}
-2026-09-12T00:41:32.167Z INFO  Starting Actor 1: Nigerian Creator Inspiration Commenter Scraper {"maxPosts":15,"verificationFilter":"verified","delayBetweenScrolls":1800}
-2026-09-12T00:41:32.171Z INFO  Supabase client initialized successfully.
-2026-09-12T00:41:32.173Z INFO  Attempting Browserless connection... {"endpoint":"wss://production-sfo.browserless.io/playwright?token=[REDACTED]&timeout=120000&stealth=true"}
-2026-09-12T00:41:32.443Z WARN  Browserless connection failed (browserType.connectOverCDP: WebSocket error: wss://production-sfo.browserless.io/playwright 404 Not Found
-2026-09-12T00:41:32.445Z
-2026-09-12T00:41:32.447Z Not Found
-2026-09-12T00:41:32.448Z Call log:
-2026-09-12T00:41:32.450Z   - <ws connecting> wss://production-sfo.browserless.io/playwright
-2026-09-12T00:41:32.452Z   - <ws unexpected response> wss://production-sfo.browserless.io/playwright 404 Not Found
-2026-09-12T00:41:32.453Z
-2026-09-12T00:41:32.455Z Not Found
-2026-09-12T00:41:32.456Z   - <ws error> wss://production-sfo.browserless.io/playwright error WebSocket was closed before the connection was established
-2026-09-12T00:41:32.458Z   - <ws connect error> wss://production-sfo.browserless.io/playwright WebSocket was closed before the connection was established
-2026-09-12T00:41:32.460Z   - <ws disconnected> wss://production-sfo.browserless.io/playwright code=1006 reason=
-2026-09-12T00:41:32.461Z ). Falling back to container local Playwright Chrome...
-2026-09-12T00:41:32.463Z INFO  Launching local Playwright Chrome in container...
-2026-09-12T00:41:32.593Z INFO  Injected 18 cookies into browser context.
-2026-09-12T00:41:33.329Z INFO  Found 9 existing post IDs in Supabase (will skip these).
-2026-09-12T00:41:33.365Z INFO  Navigating to: https://x.com/i/jf/creators/inspiration/top_posts
-2026-09-12T00:41:36.630Z ACTOR: The Actor run was aborted by the user.
+2026-09-12T00:45:33.416Z ACTOR: Pulling container image of build 4kaOjuj4GvolsMl0E from registry.
+2026-09-12T00:45:34.285Z ACTOR: Creating container.
+2026-09-12T00:45:34.373Z ACTOR: Starting container.
+2026-09-12T00:45:34.374Z ACTOR: Running under "LIMITED_PERMISSIONS".
+2026-09-12T00:45:34.462Z Running on architecture: x86_64
+2026-09-12T00:45:34.464Z Will run command: xvfb-run -a -s "-ac -screen 0 1920x1080x24+32 -nolisten tcp" /bin/bash -o pipefail -c npm start
+2026-09-12T00:45:34.802Z
+2026-09-12T00:45:34.803Z > actor-1-commenter-scraper@1.0.0 start
+2026-09-12T00:45:34.804Z > node src/main.js
+2026-09-12T00:45:34.805Z
+2026-09-12T00:45:36.297Z INFO  System info {"apifyVersion":"3.7.2","apifyClientVersion":"2.25.0","crawleeVersion":"3.18.1","osType":"Linux","nodeVersion":"v22.23.2"}
+2026-09-12T00:45:36.422Z INFO  Starting Actor 1: Nigerian Creator Inspiration Commenter Scraper {"maxPosts":15,"verificationFilter":"verified","delayBetweenScrolls":1800}
+2026-09-12T00:45:36.426Z INFO  Supabase client initialized successfully.
+2026-09-12T00:45:36.427Z INFO  Attempting Browserless connection... {"endpoint":"wss://production-sfo.browserless.io?token=[REDACTED]&timeout=120000&stealth=true"}
+2026-09-12T00:45:37.424Z INFO  ✓ Connected to Browserless. Watch live at: https://chrome.browserless.io/sessions
+2026-09-12T00:45:37.642Z INFO  Injected 18 cookies into browser context.
+2026-09-12T00:45:38.332Z INFO  Found 9 existing post IDs in Supabase (will skip these).
+2026-09-12T00:45:38.599Z INFO  Navigating to: https://x.com/i/jf/creators/inspiration/top_posts
+2026-09-12T00:45:43.675Z INFO  Checking if Nigeria country filter is active...
+2026-09-12T00:45:44.169Z INFO  Nigeria filter already active.
+2026-09-12T00:45:44.170Z INFO  Setting sort to Most Replies...
+2026-09-12T00:45:47.295Z INFO  "Most Replies" sort applied.
+2026-09-12T00:45:47.369Z INFO  [Post 2098200840192336193] Opening: https://x.com/lagunabeachjr/status/2098200840192336193
+2026-09-12T00:45:55.400Z INFO  [Post 2098200840192336193] Scroll batch: 12 tweets, 11 parsed.
+2026-09-12T00:45:55.684Z INFO  [Supabase] ✓ Streamed 2 new usernames (post total: 2).
+2026-09-12T00:45:57.696Z INFO  [Post 2098200840192336193] Scroll batch: 22 tweets, 21 parsed.
+2026-09-12T00:45:57.942Z INFO  [Supabase] ✓ Streamed 3 new usernames (post total: 5).
+2026-09-12T00:45:59.982Z INFO  [Post 2098200840192336193] Scroll batch: 33 tweets, 32 parsed.
+2026-09-12T00:46:00.251Z INFO  [Supabase] ✓ Streamed 3 new usernames (post total: 8).
+2026-09-12T00:46:02.363Z INFO  [Post 2098200840192336193] Scroll batch: 34 tweets, 33 parsed.
+2026-09-12T00:46:02.687Z INFO  [Supabase] ✓ Streamed 1 new usernames (post total: 9).
+2026-09-12T00:46:04.729Z INFO  [Post 2098200840192336193] Scroll batch: 39 tweets, 38 parsed.
+2026-09-12T00:46:05.200Z INFO  [Supabase] ✓ Streamed 2 new usernames (post total: 11).
+2026-09-12T00:46:07.213Z INFO  [Post 2098200840192336193] Scroll batch: 40 tweets, 39 parsed.
+2026-09-12T00:46:07.323Z INFO  [Supabase] ✓ Streamed 3 new usernames (post total: 14).
+2026-09-12T00:46:09.324Z INFO  [Post 2098200840192336193] Scroll batch: 36 tweets, 35 parsed.
+2026-09-12T00:46:09.430Z INFO  [Supabase] ✓ Streamed 4 new usernames (post total: 18).
+2026-09-12T00:46:11.466Z INFO  [Post 2098200840192336193] Scroll batch: 36 tweets, 35 parsed.
+2026-09-12T00:46:13.412Z INFO  [Post 2098200840192336193] Scroll batch: 44 tweets, 43 parsed.
+2026-09-12T00:46:13.537Z INFO  [Supabase] ✓ Streamed 2 new usernames (post total: 20).
+2026-09-12T00:46:15.516Z INFO  [Post 2098200840192336193] Scroll batch: 40 tweets, 39 parsed.
+2026-09-12T00:46:17.474Z INFO  [Post 2098200840192336193] Scroll batch: 43 tweets, 42 parsed.
+2026-09-12T00:46:17.720Z INFO  [Supabase] ✓ Streamed 1 new usernames (post total: 21).
+2026-09-12T00:46:19.692Z INFO  [Post 2098200840192336193] Scroll batch: 35 tweets, 34 parsed.
+2026-09-12T00:46:21.638Z INFO  [Post 2098200840192336193] Scroll batch: 37 tweets, 36 parsed.
+2026-09-12T00:46:21.738Z INFO  [Supabase] ✓ Streamed 2 new usernames (post total: 23).
+2026-09-12T00:46:23.760Z INFO  [Post 2098200840192336193] Scroll batch: 33 tweets, 32 parsed.
+2026-09-12T00:46:23.858Z INFO  [Supabase] ✓ Streamed 1 new usernames (post total: 24).
+2026-09-12T00:46:25.822Z INFO  [Post 2098200840192336193] Scroll batch: 25 tweets, 24 parsed.
+2026-09-12T00:46:26.065Z INFO  [Supabase] ✓ Streamed 2 new usernames (post total: 26).
+2026-09-12T00:46:28.060Z INFO  [Post 2098200840192336193] Scroll batch: 26 tweets, 25 parsed.
+2026-09-12T00:46:28.157Z INFO  [Supabase] ✓ Streamed 3 new usernames (post total: 29).
+2026-09-12T00:46:30.196Z INFO  [Post 2098200840192336193] Scroll batch: 23 tweets, 22 parsed.
+2026-09-12T00:46:30.299Z INFO  [Supabase] ✓ Streamed 2 new usernames (post total: 31).
+2026-09-12T00:46:32.301Z INFO  [Post 2098200840192336193] Scroll batch: 22 tweets, 21 parsed.
+2026-09-12T00:46:32.545Z INFO  [Supabase] ✓ Streamed 2 new usernames (post total: 33).
+2026-09-12T00:46:34.533Z INFO  [Post 2098200840192336193] Scroll batch: 33 tweets, 32 parsed.
+2026-09-12T00:46:34.775Z INFO  [Supabase] ✓ Streamed 2 new usernames (post total: 35).
+2026-09-12T00:46:36.793Z INFO  [Post 2098200840192336193] Scroll batch: 32 tweets, 31 parsed.
+2026-09-12T00:46:36.893Z INFO  [Supabase] ✓ Streamed 2 new usernames (post total: 37).
+2026-09-12T00:46:38.889Z INFO  [Post 2098200840192336193] Scroll batch: 37 tweets, 36 parsed.
+2026-09-12T00:46:38.989Z INFO  [Supabase] ✓ Streamed 3 new usernames (post total: 40).
+2026-09-12T00:46:41.030Z INFO  [Post 2098200840192336193] Scroll batch: 36 tweets, 35 parsed.
+2026-09-12T00:46:42.977Z INFO  [Post 2098200840192336193] Scroll batch: 38 tweets, 37 parsed.
+2026-09-12T00:46:44.935Z INFO  [Post 2098200840192336193] Scroll batch: 36 tweets, 35 parsed.
+2026-09-12T00:46:45.214Z INFO  [Supabase] ✓ Streamed 2 new usernames (post total: 42).
+2026-09-12T00:46:47.237Z INFO  [Post 2098200840192336193] Scroll batch: 24 tweets, 23 parsed.
+2026-09-12T00:46:49.192Z INFO  [Post 2098200840192336193] Scroll batch: 15 tweets, 14 parsed.
+2026-09-12T00:46:51.063Z INFO  [Post 2098200840192336193] ✓ Done. Total unique commenters: 42.
+2026-09-12T00:46:51.458Z INFO  Progress: 1/15 posts completed.
+2026-09-12T00:46:51.458Z INFO  [Post 2098233346920796257] Opening: https://x.com/godlightgrace/status/2098233346920796257
+2026-09-12T00:46:51.488Z /home/myuser/node_modules/playwright-core/lib/coreBundle.js:838
+2026-09-12T00:46:51.489Z     throw new Error(message || "Assertion error");
+2026-09-12T00:46:51.490Z           ^
+2026-09-12T00:46:51.490Z
+2026-09-12T00:46:51.491Z Error: Duplicate target D7600FA15F76F14668D6899BD8B3A7BB
+2026-09-12T00:46:51.518Z     at assert (/home/myuser/node_modules/playwright-core/lib/coreBundle.js:838:11)
+2026-09-12T00:46:51.518Z     at _CRBrowser._onAttachedToTarget (/home/myuser/node_modules/playwright-core/lib/coreBundle.js:38442:9)
+2026-09-12T00:46:51.519Z     at _CRSession.emit (node:events:519:28)
+2026-09-12T00:46:51.519Z     at /home/myuser/node_modules/playwright-core/lib/coreBundle.js:35018:18
+2026-09-12T00:46:51.520Z
+2026-09-12T00:46:51.520Z Node.js v22.23.2
