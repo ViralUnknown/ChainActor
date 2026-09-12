@@ -1,59 +1,154 @@
-2026-09-12T01:51:59.526Z ACTOR: Pulling container image of build yiMRUh9O9HGB2NqRK from registry.
-2026-09-12T01:52:04.366Z ACTOR: Creating container.
-2026-09-12T01:52:04.443Z ACTOR: Starting container.
-2026-09-12T01:52:04.445Z ACTOR: Running under "LIMITED_PERMISSIONS".
-2026-09-12T01:52:04.530Z Running on architecture: x86_64
-2026-09-12T01:52:04.532Z Will run command: xvfb-run -a -s "-ac -screen 0 1920x1080x24+32 -nolisten tcp" /bin/bash -o pipefail -c npm start
-2026-09-12T01:52:04.938Z
-2026-09-12T01:52:04.940Z > actor-1-commenter-scraper@1.0.0 start
-2026-09-12T01:52:04.942Z > node src/main.js
-2026-09-12T01:52:04.944Z
-2026-09-12T01:52:06.259Z INFO  System info {"apifyVersion":"3.7.2","apifyClientVersion":"2.25.0","crawleeVersion":"3.18.1","osType":"Linux","nodeVersion":"v22.23.2"}
-2026-09-12T01:52:06.422Z INFO  Starting Actor 1: Nigerian Creator Inspiration Commenter Scraper {"maxPosts":15,"verificationFilter":"verified","delayBetweenScrolls":1800}
-2026-09-12T01:52:06.425Z INFO  Supabase client initialized successfully.
-2026-09-12T01:52:06.427Z INFO  Attempting Browserless connection... {"endpoint":"wss://chrome.browserless.io?token=[REDACTED]&timeout=120000&stealth=true"}
-2026-09-12T01:52:07.322Z INFO  ✓ Connected to Browserless. Watch live at: https://chrome.browserless.io/sessions
-2026-09-12T01:52:07.541Z INFO  Injected 16 cookies into browser context.
-2026-09-12T01:52:08.265Z INFO  Found 18 existing post IDs in Supabase (will skip these).
-2026-09-12T01:52:08.584Z INFO  Navigating to: https://x.com/i/jf/creators/inspiration/top_posts
-2026-09-12T01:52:13.492Z INFO  Checking if Nigeria country filter is active...
-2026-09-12T01:52:13.836Z INFO  Country filter header button status: "🇳🇬 NGA" (isNga: true)
-2026-09-12T01:52:13.838Z INFO  ✓ Nigeria filter already active.
-2026-09-12T01:52:13.840Z INFO  Setting sort to Most Replies...
-2026-09-12T01:52:17.923Z INFO  ✓ "Most Replies" sort applied successfully.
-2026-09-12T01:52:18.571Z INFO  ✓ Saved screenshot to Key-Value store artifact: INSPIRATION_FILTERED.png
-2026-09-12T01:52:18.871Z INFO  [Post 2098353407417339953] Opening: https://x.com/FabrizioRomano/status/2098353407417339953
-2026-09-12T01:52:26.819Z INFO  [Post 2098353407417339953] Scroll batch: 10 tweets, 9 parsed.
-2026-09-12T01:52:27.094Z INFO  [Supabase] ✓ Streamed 9 new usernames (post total: 9).
-2026-09-12T01:52:29.302Z INFO  [Post 2098353407417339953] Scroll batch: 16 tweets, 15 parsed.
-2026-09-12T01:52:29.397Z INFO  [Supabase] ✓ Streamed 5 new usernames (post total: 14).
-2026-09-12T01:52:31.465Z INFO  [Post 2098353407417339953] Scroll batch: 20 tweets, 19 parsed.
-2026-09-12T01:52:31.714Z INFO  [Supabase] ✓ Streamed 4 new usernames (post total: 18).
-2026-09-12T01:52:33.895Z INFO  [Post 2098353407417339953] Scroll batch: 19 tweets, 18 parsed.
-2026-09-12T01:52:34.135Z INFO  [Supabase] ✓ Streamed 2 new usernames (post total: 20).
-2026-09-12T01:52:36.134Z INFO  [Post 2098353407417339953] Scroll batch: 17 tweets, 16 parsed.
-2026-09-12T01:52:36.219Z INFO  [Supabase] ✓ Streamed 3 new usernames (post total: 23).
-2026-09-12T01:52:38.247Z INFO  [Post 2098353407417339953] Scroll batch: 16 tweets, 15 parsed.
-2026-09-12T01:52:38.538Z INFO  [Supabase] ✓ Streamed 4 new usernames (post total: 27).
-2026-09-12T01:52:40.584Z INFO  [Post 2098353407417339953] Scroll batch: 14 tweets, 13 parsed.
-2026-09-12T01:52:40.697Z INFO  [Supabase] ✓ Streamed 3 new usernames (post total: 30).
-2026-09-12T01:52:42.695Z INFO  [Post 2098353407417339953] Scroll batch: 14 tweets, 13 parsed.
-2026-09-12T01:52:42.937Z INFO  [Supabase] ✓ Streamed 2 new usernames (post total: 32).
-2026-09-12T01:52:44.923Z INFO  [Post 2098353407417339953] Scroll batch: 17 tweets, 16 parsed.
-2026-09-12T01:52:45.016Z INFO  [Supabase] ✓ Streamed 4 new usernames (post total: 36).
-2026-09-12T01:52:47.042Z INFO  [Post 2098353407417339953] Scroll batch: 14 tweets, 13 parsed.
-2026-09-12T01:52:47.284Z INFO  [Supabase] ✓ Streamed 1 new usernames (post total: 37).
-2026-09-12T01:52:48.400Z /home/myuser/node_modules/playwright-core/lib/coreBundle.js:838
-2026-09-12T01:52:48.402Z     throw new Error(message || "Assertion error");
-2026-09-12T01:52:48.404Z           ^
-2026-09-12T01:52:48.406Z
-2026-09-12T01:52:48.408Z Error: Duplicate target B3DC0530C78EC0A8530EB8C5B341897A
-2026-09-12T01:52:48.410Z     at assert (/home/myuser/node_modules/playwright-core/lib/coreBundle.js:838:11)
-2026-09-12T01:52:48.412Z     at _CRBrowser._onAttachedToTarget (/home/myuser/node_modules/playwright-core/lib/coreBundle.js:38442:9)
-2026-09-12T01:52:48.414Z     at _CRSession.emit (node:events:519:28)
-2026-09-12T01:52:48.416Z     at /home/myuser/node_modules/playwright-core/lib/coreBundle.js:35018:18
-2026-09-12T01:52:48.417Z     at runNextTicks (node:internal/process/task_queues:64:5)
-2026-09-12T01:52:48.419Z     at process.processImmediate (node:internal/timers:452:9)
-2026-09-12T01:52:48.421Z     at process.callbackTrampoline (node:internal/async_hooks:130:17)
-2026-09-12T01:52:48.423Z
-2026-09-12T01:52:48.424Z Node.js v22.23.2
+2026-09-12T02:01:27.048Z ACTOR: Pulling container image of build yiMRUh9O9HGB2NqRK from registry.
+2026-09-12T02:01:27.050Z ACTOR: Creating container.
+2026-09-12T02:01:27.117Z ACTOR: Starting container.
+2026-09-12T02:01:27.118Z ACTOR: Running under "LIMITED_PERMISSIONS".
+2026-09-12T02:01:27.205Z Running on architecture: x86_64
+2026-09-12T02:01:27.208Z Will run command: xvfb-run -a -s "-ac -screen 0 1920x1080x24+32 -nolisten tcp" /bin/bash -o pipefail -c npm start
+2026-09-12T02:01:27.550Z
+2026-09-12T02:01:27.551Z > actor-1-commenter-scraper@1.0.0 start
+2026-09-12T02:01:27.551Z > node src/main.js
+2026-09-12T02:01:27.551Z
+2026-09-12T02:01:28.804Z INFO  System info {"apifyVersion":"3.7.2","apifyClientVersion":"2.25.0","crawleeVersion":"3.18.1","osType":"Linux","nodeVersion":"v22.23.2"}
+2026-09-12T02:01:28.917Z INFO  Starting Actor 1: Nigerian Creator Inspiration Commenter Scraper {"maxPosts":15,"verificationFilter":"verified","delayBetweenScrolls":1800}
+2026-09-12T02:01:28.917Z INFO  Supabase client initialized successfully.
+2026-09-12T02:01:28.918Z INFO  Launching Brave Browser with Brave Shields in container... {"executablePath":"/usr/bin/brave-browser"}
+2026-09-12T02:01:29.658Z INFO  Injected 16 cookies into browser context.
+2026-09-12T02:01:30.273Z INFO  Found 19 existing post IDs in Supabase (will skip these).
+2026-09-12T02:01:30.410Z INFO  Navigating to: https://x.com/i/jf/creators/inspiration/top_posts
+2026-09-12T02:01:34.875Z INFO  Checking if Nigeria country filter is active...
+2026-09-12T02:01:34.880Z INFO  Country filter header button status: "🇳🇬 NGA" (isNga: true)
+2026-09-12T02:01:34.880Z INFO  ✓ Nigeria filter already active.
+2026-09-12T02:01:34.881Z INFO  Setting sort to Most Replies...
+2026-09-12T02:01:38.884Z INFO  ✓ "Most Replies" sort applied successfully.
+2026-09-12T02:01:39.237Z INFO  ✓ Saved screenshot to Key-Value store artifact: INSPIRATION_FILTERED.png
+2026-09-12T02:01:39.538Z INFO  [Post 2098350845066870887] Opening: https://x.com/ChelseaFC/status/2098350845066870887
+2026-09-12T02:01:53.075Z INFO  [Post 2098350845066870887] Scroll batch: 9 tweets, 8 parsed.
+2026-09-12T02:01:53.541Z INFO  [Supabase] ✓ Streamed 5 new usernames (post total: 5).
+2026-09-12T02:01:55.961Z INFO  [Post 2098350845066870887] Scroll batch: 13 tweets, 12 parsed.
+2026-09-12T02:01:56.235Z INFO  [Supabase] ✓ Streamed 4 new usernames (post total: 9).
+2026-09-12T02:01:58.734Z INFO  [Post 2098350845066870887] Scroll batch: 16 tweets, 15 parsed.
+2026-09-12T02:01:59.034Z INFO  [Supabase] ✓ Streamed 2 new usernames (post total: 11).
+2026-09-12T02:02:01.238Z INFO  [Post 2098350845066870887] Scroll batch: 16 tweets, 15 parsed.
+2026-09-12T02:02:03.829Z INFO  [Supabase] ✓ Streamed 1 new usernames (post total: 12).
+2026-09-12T02:02:05.735Z INFO  [Post 2098350845066870887] Scroll batch: 19 tweets, 18 parsed.
+2026-09-12T02:02:06.046Z INFO  [Supabase] ✓ Streamed 4 new usernames (post total: 16).
+2026-09-12T02:02:08.039Z INFO  [Post 2098350845066870887] Scroll batch: 19 tweets, 18 parsed.
+2026-09-12T02:02:08.635Z INFO  [Supabase] ✓ Streamed 4 new usernames (post total: 20).
+2026-09-12T02:02:10.573Z INFO  [Post 2098350845066870887] Scroll batch: 21 tweets, 20 parsed.
+2026-09-12T02:02:10.857Z INFO  [Supabase] ✓ Streamed 4 new usernames (post total: 24).
+2026-09-12T02:02:12.931Z INFO  [Post 2098350845066870887] Scroll batch: 23 tweets, 22 parsed.
+2026-09-12T02:02:13.180Z ACTOR: The Actor run was aborted by the user.
+2026-09-12T02:02:13.185Z INFO  [Supabase] ✓ Streamed 2 new usernames (post total: 26).
+2026-09-12T02:02:57.027Z ACTOR: Run was resurrected by the user.
+2026-09-12T02:02:57.030Z ACTOR: Pulling container image of build yiMRUh9O9HGB2NqRK from registry.
+2026-09-12T02:02:57.034Z ACTOR: Creating container.
+2026-09-12T02:02:57.119Z ACTOR: Starting container.
+2026-09-12T02:02:57.119Z ACTOR: Running under "LIMITED_PERMISSIONS".
+2026-09-12T02:02:57.210Z Running on architecture: x86_64
+2026-09-12T02:02:57.211Z Will run command: xvfb-run -a -s "-ac -screen 0 1920x1080x24+32 -nolisten tcp" /bin/bash -o pipefail -c npm start
+2026-09-12T02:02:57.411Z
+2026-09-12T02:02:57.412Z > actor-1-commenter-scraper@1.0.0 start
+2026-09-12T02:02:57.412Z > node src/main.js
+2026-09-12T02:02:57.412Z
+2026-09-12T02:02:58.157Z INFO  System info {"apifyVersion":"3.7.2","apifyClientVersion":"2.25.0","crawleeVersion":"3.18.1","osType":"Linux","nodeVersion":"v22.23.2"}
+2026-09-12T02:02:58.242Z INFO  Starting Actor 1: Nigerian Creator Inspiration Commenter Scraper {"maxPosts":15,"verificationFilter":"verified","delayBetweenScrolls":1800}
+2026-09-12T02:02:58.247Z INFO  Supabase client initialized successfully.
+2026-09-12T02:02:58.248Z INFO  Launching Brave Browser with Brave Shields in container... {"executablePath":"/usr/bin/brave-browser"}
+2026-09-12T02:02:58.567Z INFO  Injected 16 cookies into browser context.
+2026-09-12T02:02:59.073Z INFO  Found 20 existing post IDs in Supabase (will skip these).
+2026-09-12T02:02:59.280Z INFO  Navigating to: https://x.com/i/jf/creators/inspiration/top_posts
+2026-09-12T02:03:03.979Z INFO  Checking if Nigeria country filter is active...
+2026-09-12T02:03:03.985Z INFO  Country filter header button status: "🇳🇬 NGA" (isNga: true)
+2026-09-12T02:03:03.986Z INFO  ✓ Nigeria filter already active.
+2026-09-12T02:03:03.987Z INFO  Setting sort to Most Replies...
+2026-09-12T02:03:07.992Z INFO  ✓ "Most Replies" sort applied successfully.
+2026-09-12T02:03:08.254Z INFO  ✓ Saved screenshot to Key-Value store artifact: INSPIRATION_FILTERED.png
+2026-09-12T02:03:08.451Z INFO  [Post 2098372434608943446] Opening: https://x.com/flygodT/status/2098372434608943446
+2026-09-12T02:03:22.441Z INFO  [Post 2098372434608943446] Scroll batch: 17 tweets, 16 parsed.
+2026-09-12T02:03:23.130Z INFO  [Supabase] ✓ Streamed 2 new usernames (post total: 2).
+2026-09-12T02:03:25.531Z INFO  [Post 2098372434608943446] Scroll batch: 24 tweets, 23 parsed.
+2026-09-12T02:03:25.775Z INFO  [Supabase] ✓ Streamed 3 new usernames (post total: 5).
+2026-09-12T02:03:27.941Z INFO  [Post 2098372434608943446] Scroll batch: 32 tweets, 31 parsed.
+2026-09-12T02:03:28.041Z INFO  [Supabase] ✓ Streamed 2 new usernames (post total: 7).
+2026-09-12T02:03:30.555Z INFO  [Post 2098372434608943446] Scroll batch: 32 tweets, 31 parsed.
+2026-09-12T02:03:30.642Z INFO  [Supabase] ✓ Streamed 4 new usernames (post total: 11).
+2026-09-12T02:03:33.136Z INFO  [Post 2098372434608943446] Scroll batch: 33 tweets, 32 parsed.
+2026-09-12T02:03:33.233Z INFO  [Supabase] ✓ Streamed 7 new usernames (post total: 18).
+2026-09-12T02:03:35.599Z INFO  [Post 2098372434608943446] Scroll batch: 33 tweets, 32 parsed.
+2026-09-12T02:03:35.843Z INFO  [Supabase] ✓ Streamed 2 new usernames (post total: 20).
+2026-09-12T02:03:37.746Z INFO  [Post 2098372434608943446] Scroll batch: 29 tweets, 28 parsed.
+2026-09-12T02:03:37.840Z INFO  [Supabase] ✓ Streamed 1 new usernames (post total: 21).
+2026-09-12T02:03:39.843Z INFO  [Post 2098372434608943446] Scroll batch: 33 tweets, 32 parsed.
+2026-09-12T02:03:40.090Z INFO  [Supabase] ✓ Streamed 2 new usernames (post total: 23).
+2026-09-12T02:03:42.014Z INFO  [Post 2098372434608943446] Scroll batch: 29 tweets, 28 parsed.
+2026-09-12T02:03:42.136Z INFO  [Supabase] ✓ Streamed 2 new usernames (post total: 25).
+2026-09-12T02:03:44.438Z INFO  [Post 2098372434608943446] Scroll batch: 32 tweets, 31 parsed.
+2026-09-12T02:03:44.736Z INFO  [Supabase] ✓ Streamed 2 new usernames (post total: 27).
+2026-09-12T02:03:46.639Z INFO  [Post 2098372434608943446] Scroll batch: 28 tweets, 27 parsed.
+2026-09-12T02:03:47.060Z INFO  [Supabase] ✓ Streamed 1 new usernames (post total: 28).
+2026-09-12T02:03:49.037Z INFO  [Post 2098372434608943446] Scroll batch: 28 tweets, 27 parsed.
+2026-09-12T02:03:50.957Z INFO  [Post 2098372434608943446] Scroll batch: 28 tweets, 27 parsed.
+2026-09-12T02:03:51.133Z INFO  [Supabase] ✓ Streamed 1 new usernames (post total: 29).
+2026-09-12T02:03:53.547Z INFO  [Post 2098372434608943446] Scroll batch: 30 tweets, 29 parsed.
+2026-09-12T02:03:53.643Z INFO  [Supabase] ✓ Streamed 4 new usernames (post total: 33).
+2026-09-12T02:03:55.737Z INFO  [Post 2098372434608943446] Scroll batch: 26 tweets, 25 parsed.
+2026-09-12T02:03:55.833Z INFO  [Supabase] ✓ Streamed 1 new usernames (post total: 34).
+2026-09-12T02:03:58.046Z INFO  [Post 2098372434608943446] Scroll batch: 28 tweets, 27 parsed.
+2026-09-12T02:03:58.149Z INFO  [Supabase] ✓ Streamed 4 new usernames (post total: 38).
+2026-09-12T02:04:00.660Z INFO  [Post 2098372434608943446] Scroll batch: 36 tweets, 35 parsed.
+2026-09-12T02:04:02.152Z INFO  [Supabase] ✓ Streamed 3 new usernames (post total: 41).
+2026-09-12T02:04:04.044Z INFO  [Post 2098372434608943446] Scroll batch: 39 tweets, 38 parsed.
+2026-09-12T02:04:04.262Z INFO  [Supabase] ✓ Streamed 1 new usernames (post total: 42).
+2026-09-12T02:04:06.092Z INFO  [Post 2098372434608943446] Scroll batch: 34 tweets, 33 parsed.
+2026-09-12T02:04:06.547Z INFO  [Supabase] ✓ Streamed 2 new usernames (post total: 44).
+2026-09-12T02:04:08.640Z INFO  [Post 2098372434608943446] Scroll batch: 44 tweets, 43 parsed.
+2026-09-12T02:04:08.946Z INFO  [Supabase] ✓ Streamed 1 new usernames (post total: 45).
+2026-09-12T02:04:10.878Z INFO  [Post 2098372434608943446] Scroll batch: 41 tweets, 40 parsed.
+2026-09-12T02:04:11.120Z INFO  [Supabase] ✓ Streamed 2 new usernames (post total: 47).
+2026-09-12T02:04:12.986Z INFO  [Post 2098372434608943446] Scroll batch: 45 tweets, 44 parsed.
+2026-09-12T02:04:13.176Z INFO  [Supabase] ✓ Streamed 1 new usernames (post total: 48).
+2026-09-12T02:04:15.145Z INFO  [Post 2098372434608943446] Scroll batch: 45 tweets, 44 parsed.
+2026-09-12T02:04:16.996Z INFO  [Post 2098372434608943446] Scroll batch: 45 tweets, 44 parsed.
+2026-09-12T02:04:17.090Z INFO  [Supabase] ✓ Streamed 1 new usernames (post total: 49).
+2026-09-12T02:04:18.956Z INFO  [Post 2098372434608943446] Scroll batch: 47 tweets, 46 parsed.
+2026-09-12T02:04:19.058Z INFO  [Supabase] ✓ Streamed 5 new usernames (post total: 54).
+2026-09-12T02:04:21.171Z INFO  [Post 2098372434608943446] Scroll batch: 45 tweets, 44 parsed.
+2026-09-12T02:04:21.335Z INFO  [Supabase] ✓ Streamed 4 new usernames (post total: 58).
+2026-09-12T02:04:23.311Z INFO  [Post 2098372434608943446] Scroll batch: 40 tweets, 39 parsed.
+2026-09-12T02:04:23.403Z INFO  [Supabase] ✓ Streamed 2 new usernames (post total: 60).
+2026-09-12T02:04:25.293Z INFO  [Post 2098372434608943446] Scroll batch: 38 tweets, 37 parsed.
+2026-09-12T02:04:25.546Z INFO  [Supabase] ✓ Streamed 2 new usernames (post total: 62).
+2026-09-12T02:04:27.557Z INFO  [Post 2098372434608943446] Scroll batch: 39 tweets, 38 parsed.
+2026-09-12T02:04:27.732Z INFO  [Supabase] ✓ Streamed 1 new usernames (post total: 63).
+2026-09-12T02:04:29.844Z INFO  [Post 2098372434608943446] Scroll batch: 32 tweets, 31 parsed.
+2026-09-12T02:04:30.086Z INFO  [Supabase] ✓ Streamed 1 new usernames (post total: 64).
+2026-09-12T02:04:32.136Z INFO  [Post 2098372434608943446] Scroll batch: 37 tweets, 36 parsed.
+2026-09-12T02:04:32.233Z INFO  [Supabase] ✓ Streamed 1 new usernames (post total: 65).
+2026-09-12T02:04:34.244Z INFO  [Post 2098372434608943446] Scroll batch: 49 tweets, 48 parsed.
+2026-09-12T02:04:34.337Z INFO  [Supabase] ✓ Streamed 2 new usernames (post total: 67).
+2026-09-12T02:04:36.201Z INFO  [Post 2098372434608943446] Scroll batch: 44 tweets, 43 parsed.
+2026-09-12T02:04:36.503Z INFO  [Supabase] ✓ Streamed 1 new usernames (post total: 68).
+2026-09-12T02:04:38.558Z INFO  [Post 2098372434608943446] Scroll batch: 40 tweets, 39 parsed.
+2026-09-12T02:04:40.466Z INFO  [Post 2098372434608943446] Scroll batch: 37 tweets, 36 parsed.
+2026-09-12T02:04:40.712Z INFO  [Supabase] ✓ Streamed 1 new usernames (post total: 69).
+2026-09-12T02:04:42.546Z INFO  [Post 2098372434608943446] Scroll batch: 34 tweets, 33 parsed.
+2026-09-12T02:04:42.813Z INFO  [Supabase] ✓ Streamed 3 new usernames (post total: 72).
+2026-09-12T02:04:44.752Z INFO  [Post 2098372434608943446] Scroll batch: 27 tweets, 26 parsed.
+2026-09-12T02:04:44.823Z INFO  [Supabase] ✓ Streamed 1 new usernames (post total: 73).
+2026-09-12T02:04:46.653Z INFO  [Post 2098372434608943446] Scroll batch: 19 tweets, 18 parsed.
+2026-09-12T02:04:48.457Z INFO  [Post 2098372434608943446] Scroll batch: 11 tweets, 10 parsed.
+2026-09-12T02:04:50.261Z INFO  [Post 2098372434608943446] ✓ Done. Total unique commenters: 73.
+2026-09-12T02:04:50.524Z INFO  Progress: 1/15 posts completed.
+2026-09-12T02:04:50.525Z INFO  [Post 2098350852931199446] Opening: https://x.com/premierleague/status/2098350852931199446
+2026-09-12T02:05:00.740Z INFO  [Post 2098350852931199446] Scroll batch: 6 tweets, 5 parsed.
+2026-09-12T02:05:01.694Z INFO  [Supabase] ✓ Streamed 3 new usernames (post total: 3).
+2026-09-12T02:05:03.636Z INFO  [Post 2098350852931199446] Scroll batch: 8 tweets, 7 parsed.
+2026-09-12T02:05:03.792Z INFO  [Supabase] ✓ Streamed 1 new usernames (post total: 4).
+2026-09-12T02:05:06.056Z INFO  [Post 2098350852931199446] Scroll batch: 13 tweets, 12 parsed.
+2026-09-12T02:05:06.233Z INFO  [Supabase] ✓ Streamed 3 new usernames (post total: 7).
+2026-09-12T02:05:08.241Z INFO  [Post 2098350852931199446] Scroll batch: 15 tweets, 14 parsed.
+2026-09-12T02:05:08.352Z INFO  [Supabase] ✓ Streamed 1 new usernames (post total: 8).
+2026-09-12T02:05:10.179Z INFO  [Post 2098350852931199446] Scroll batch: 14 tweets, 13 parsed.
+2026-09-12T02:05:11.982Z INFO  [Post 2098350852931199446] Scroll batch: 17 tweets, 16 parsed.
+2026-09-12T02:05:13.038Z INFO  [Supabase] ✓ Streamed 4 new usernames (post total: 12).
+2026-09-12T02:05:14.127Z ACTOR: The Actor run was aborted by the user.

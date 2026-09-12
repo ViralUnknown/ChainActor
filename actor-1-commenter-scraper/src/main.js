@@ -6,7 +6,7 @@ import fs from 'node:fs';
 
 // ── Graceful Abort Handling ──────────────────────────────────────────────────
 Actor.on('aborting', async () => {
-    log.warning('Actor aborting signal received. Saving state and exiting...');
+    log.warning('Actor aborting signal received. Exiting gracefully...');
     await setTimeout(1000);
     await Actor.exit();
 });
@@ -23,8 +23,6 @@ const {
     delayBetweenScrolls = 1800,
     supabaseUrl = process.env.AIS_SUPABASE_URL || process.env.SUPABASE_URL,
     supabaseAnonKey = process.env.AIS_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY,
-    browserlessApiKey = process.env.BROWSERLESS_API_KEY,
-    browserlessEndpoint = 'wss://chrome.browserless.io/playwright',
 } = input;
 
 log.info('Starting Actor 1: Nigerian Creator Inspiration Commenter Scraper', {
@@ -86,15 +84,6 @@ function parseCookies(inputCookie) {
         .filter((c) => c !== null);
 }
 
-// Handle Playwright internal CDP assertions (e.g. Duplicate target) gracefully
-process.on('uncaughtException', (err) => {
-    if (err.message && err.message.includes('Duplicate target')) {
-        log.warning(`[Playwright CDP Warning] Handled duplicate target event: ${err.message}`);
-        return;
-    }
-    log.error(`Uncaught Exception: ${err.stack || err.message}`);
-});
-
 let cookiesToInject = [];
 if (Array.isArray(rawCookiesInput)) {
     for (const item of rawCookiesInput) {
@@ -111,62 +100,34 @@ if (ct0) {
     cookiesToInject.push({ name: 'ct0', value: ct0.trim(), domain: '.x.com', path: '/', secure: true, sameSite: 'Lax' });
 }
 
-// ── Connect to Browserless or Launch Local Container Browser ────────────────
-let browser = null;
-let context = null;
+// ── Launch Brave Browser (Local Container) ─────────────────────────────────────
+// No Browserless.io - always use local browser in container
+const bravePath = process.env.BRAVE_PATH || '/usr/bin/brave-browser';
+const executablePath = fs.existsSync(bravePath) ? bravePath : undefined;
 
-const cleanBrowserlessKey = (browserlessApiKey || process.env.BROWSERLESS_API_KEY || '').trim();
-
-if (cleanBrowserlessKey) {
-    try {
-        let baseEndpoint = (browserlessEndpoint || 'wss://chrome.browserless.io').trim();
-        baseEndpoint = baseEndpoint.replace(/\/playwright\/?$/, '');
-        if (baseEndpoint.endsWith('/')) baseEndpoint = baseEndpoint.slice(0, -1);
-
-        const wsEndpoint = `${baseEndpoint}?token=${cleanBrowserlessKey}&timeout=120000&stealth=true`;
-        log.info(`Attempting Browserless connection...`, { endpoint: wsEndpoint.replace(cleanBrowserlessKey, '[REDACTED]') });
-        browser = await chromium.connectOverCDP(wsEndpoint);
-        log.info('✓ Connected to Browserless. Watch live at: https://chrome.browserless.io/sessions');
-        context = await browser.newContext({
-            viewport: { width: 1280, height: 900 },
-            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-            serviceWorkers: 'block',
-        });
-    } catch (err) {
-        log.warning(`Browserless connection failed (${err.message}). Falling back to container local Playwright Chrome...`);
-        browser = null;
-        context = null;
-    }
+if (executablePath) {
+    log.info('Launching Brave Browser in container...', { executablePath });
+} else {
+    log.info('Brave not found. Launching Playwright Chromium...');
 }
 
-if (!browser) {
-    const bravePath = process.env.BRAVE_PATH || '/usr/bin/brave-browser';
-    const executablePath = fs.existsSync(bravePath) ? bravePath : undefined;
+const browser = await chromium.launch({
+    ...(executablePath ? { executablePath } : {}),
+    headless: true,
+    args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--disable-blink-features=AutomationControlled',
+    ],
+});
 
-    if (executablePath) {
-        log.info('Launching Brave Browser with Brave Shields in container...', { executablePath });
-    } else {
-        log.info('Launching local Playwright Chrome in container...');
-    }
-
-    browser = await chromium.launch({
-        ...(executablePath ? { executablePath } : {}),
-        headless: true,
-        args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--disable-gpu',
-            '--disable-blink-features=AutomationControlled',
-            '--enable-features=BraveShields',
-        ],
-    });
-    context = await browser.newContext({
-        viewport: { width: 1280, height: 900 },
-        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-        serviceWorkers: 'block',
-    });
-}
+const context = await browser.newContext({
+    viewport: { width: 1280, height: 900 },
+    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+    serviceWorkers: 'block',
+});
 
 // Inject cookies
 if (cookiesToInject.length > 0) {
@@ -174,7 +135,7 @@ if (cookiesToInject.length > 0) {
     log.info(`Injected ${cookiesToInject.length} cookies into browser context.`);
 }
 
-// Block heavy media
+// Block heavy media on all pages
 await context.route('**/*', (route) => {
     const type = route.request().resourceType();
     if (['image', 'media', 'font'].includes(type)) return route.abort();
@@ -195,201 +156,232 @@ if (supabase) {
     }
 }
 
-// ── Step 1: Open Inspiration Page ─────────────────────────────────────────────
-const page = await context.newPage();
+// ── Step 1: Open Master Tab (stays open the whole run) ─────────────────────────
+const masterTab = await context.newPage();
 const INSPIRATION_URL = 'https://x.com/i/jf/creators/inspiration/top_posts';
 log.info(`Navigating to: ${INSPIRATION_URL}`);
 
 try {
-    await page.goto(INSPIRATION_URL, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await masterTab.goto(INSPIRATION_URL, { waitUntil: 'domcontentloaded', timeout: 60000 });
 } catch (e) {
     log.warning(`Navigation warning: ${e.message}. Continuing...`);
 }
-await setTimeout(4000);
+await setTimeout(5000);
 
-// ── Step 2: Ensure Country is Nigeria ─────────────────────────────────────────
+// ── Step 2: Ensure NGA Country Filter Is Active ────────────────────────────────
+// Reference (CodeSnippets.txt):
+//   NGA button selector: button.jf4o1ez2  -> <p>🇳🇬 NGA</p>
+//   Nigeria list row: <button> containing two separate <p> elements: one "🇳🇬", one "Nigeria"
+//   Close button: svg[data-icon="icon-close"] inside a button
 async function ensureNigeriaSelected(page) {
-    log.info('Checking if Nigeria country filter is active...');
+    log.info('Checking if Nigeria (🇳🇬 NGA) filter is active...');
 
-    const getHeaderStatus = async () => {
-        return await page.evaluate(() => {
-            const buttons = Array.from(document.querySelectorAll('button, div[role="button"]'));
-            const trigger = buttons.find((b) => {
-                const txt = (b.textContent || '').trim();
-                return txt.includes('NGA') || txt.includes('EN') || txt.includes('All Countries') || txt.includes('Country') || txt.includes('Filter') || txt.includes('💬') || txt.includes('🌎');
-            });
-            const text = trigger ? trigger.textContent.trim() : '';
-            return {
-                text,
-                isNga: text.includes('NGA') || text.includes('🇳🇬 NGA') || text.includes('🇳🇬'),
-            };
-        });
-    };
+    const getNgaButtonText = async () => page.evaluate(() => {
+        const ngaBtn = document.querySelector('button.jf4o1ez2');
+        return ngaBtn ? ngaBtn.textContent.trim() : '';
+    });
 
-    let headerStatus = await getHeaderStatus();
-    log.info(`Country filter header button status: "${headerStatus.text}" (isNga: ${headerStatus.isNga})`);
+    let headerText = await getNgaButtonText();
+    log.info(`NGA filter button text: "${headerText}"`);
 
-    if (headerStatus.isNga) {
-        log.info('✓ Nigeria filter already active.');
+    const isNga = (txt) => txt.includes('NGA') || txt.includes('\uD83C\uDDF3\uD83C\uDDEC NGA');
+
+    if (isNga(headerText)) {
+        log.info('✓ Nigeria (🇳🇬 NGA) filter already active.');
         return;
     }
 
-    log.info('Nigeria filter not active. Opening filter modal...');
     for (let attempt = 1; attempt <= 3; attempt++) {
         log.info(`Nigeria selection attempt ${attempt}/3...`);
         try {
-            // 1. Open filter modal if not open
-            const isModalOpen = await page.evaluate(() => !!document.querySelector('div[role="dialog"], [aria-modal="true"]'));
-            if (!isModalOpen) {
-                await page.evaluate(() => {
-                    const buttons = Array.from(document.querySelectorAll('button, div[role="button"]'));
-                    const trigger = buttons.find((b) => {
-                        const txt = (b.textContent || '').trim();
-                        return txt.includes('NGA') || txt.includes('EN') || txt.includes('All Countries') || txt.includes('Country') || txt.includes('Filter') || txt.includes('💬') || txt.includes('🌎');
-                    });
-                    if (trigger) trigger.click();
-                });
+            // 1. Click the country header button to open modal
+            const opened = await page.evaluate(() => {
+                const ngaBtn = document.querySelector('button.jf4o1ez2');
+                if (ngaBtn) { ngaBtn.click(); return true; }
+                return false;
+            });
+
+            if (!opened) {
+                log.warning('Country filter button (button.jf4o1ez2) not found. Retrying...');
                 await setTimeout(2000);
+                continue;
             }
 
-            // 2. Ensure "Country" tab inside modal is active
+            await setTimeout(2500);
+
+            // 2. Click the "Country" tab (CodeSnippets shows it has <p>Country</p> inside)
             await page.evaluate(() => {
-                const modal = document.querySelector('div[role="dialog"], [aria-modal="true"]') || document.body;
-                const buttons = Array.from(modal.querySelectorAll('button, div[role="button"], span'));
-                const countryTab = buttons.find((b) => {
-                    const txt = (b.textContent || '').trim();
-                    return txt === 'Country' || txt.includes('Country') || txt.includes('🌎');
+                const allButtons = Array.from(document.querySelectorAll('button'));
+                const countryTab = allButtons.find((b) => {
+                    const paras = Array.from(b.querySelectorAll('p'));
+                    return paras.some((p) => p.textContent.trim() === 'Country');
                 });
                 if (countryTab) countryTab.click();
             });
+
             await setTimeout(2000);
 
-            // 3. Scroll to and click Nigeria option in modal list
-            const ngLocator = page.locator('text="Nigeria"').first();
-            if (await ngLocator.count() > 0) {
-                await ngLocator.scrollIntoViewIfNeeded().catch(() => {});
-                await setTimeout(500);
-                await ngLocator.click({ force: true }).catch(() => {});
+            // 3. Click the Nigeria button
+            // CodeSnippets: it has two <p> children — one with just "🇳🇬" and one with "Nigeria"
+            const clickedNg = await page.evaluate(() => {
+                const allButtons = Array.from(document.querySelectorAll('button'));
+                const nigeriaBtn = allButtons.find((b) => {
+                    const paras = Array.from(b.querySelectorAll('p'));
+                    const hasFlag = paras.some((p) => p.textContent.trim() === '\uD83C\uDDF3\uD83C\uDDEC');
+                    const hasText = paras.some((p) => p.textContent.trim() === 'Nigeria');
+                    return hasFlag && hasText;
+                });
+                if (nigeriaBtn) {
+                    nigeriaBtn.scrollIntoView({ block: 'center' });
+                    nigeriaBtn.click();
+                    return true;
+                }
+                return false;
+            });
+
+            if (!clickedNg) {
+                log.warning('Nigeria button not found in list. Closing modal and retrying...');
+                await page.evaluate(() => {
+                    const closeBtn = document.querySelector('svg[data-icon="icon-close"]')?.closest('button');
+                    if (closeBtn) closeBtn.click();
+                });
+                await setTimeout(2000);
+                continue;
             }
 
-            // Fallback JS click on Nigeria row/button/span inside modal
-            await page.evaluate(() => {
-                const modal = document.querySelector('div[role="dialog"], [aria-modal="true"]') || document.body;
-                const elements = Array.from(modal.querySelectorAll('*'));
-                const ngElem = elements.find((el) => {
-                    const txt = (el.textContent || '').trim();
-                    return (txt === 'Nigeria' || txt.includes('Nigeria')) && el.children.length === 0;
-                });
-                if (ngElem) {
-                    const clickTarget = ngElem.closest('button, [role="button"], [role="option"], div') || ngElem;
-                    clickTarget.scrollIntoView?.({ block: 'center' });
-                    ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click'].forEach(evtType => {
-                        clickTarget.dispatchEvent(new MouseEvent(evtType, { bubbles: true, cancelable: true, view: window }));
-                    });
-                }
-            });
-            await setTimeout(2500);
+            log.info('✓ Clicked Nigeria option.');
+            await setTimeout(3000);
 
-            // 4. Close modal if still visible
+            // 4. Close modal
             await page.evaluate(() => {
-                const closeBtn = document.querySelector('button[aria-label="Close"], button span svg[data-icon="icon-close"]')?.closest('button');
+                const closeBtn = document.querySelector('svg[data-icon="icon-close"]')?.closest('button');
                 if (closeBtn) closeBtn.click();
             });
             await setTimeout(3000);
 
-            // 5. Check Header Status Confirmation
-            headerStatus = await getHeaderStatus();
-            log.info(`After attempt ${attempt}, header button status: "${headerStatus.text}" (isNga: ${headerStatus.isNga})`);
-            if (headerStatus.isNga) {
-                log.info(`✓ Verified header button updated to "${headerStatus.text}". Nigeria country filter selected successfully.`);
+            // 5. Confirm header now shows NGA
+            headerText = await getNgaButtonText();
+            log.info(`After attempt ${attempt}, NGA button text: "${headerText}"`);
+
+            if (isNga(headerText)) {
+                log.info(`✓ Confirmed: header shows "${headerText}". Nigeria filter active!`);
                 return;
             }
+
         } catch (err) {
-            log.warning(`Attempt ${attempt} failed with error: ${err.message}`);
+            log.warning(`Nigeria selection attempt ${attempt} error: ${err.message}`);
         }
     }
 
-    if (!headerStatus.isNga) {
-        log.warning(`❌ Nigeria filter could not be verified. Header button status remains: "${headerStatus.text}". Proceeding...`);
-    }
+    log.warning(`❌ Nigeria filter NOT confirmed after 3 attempts. Header: "${headerText}". Proceeding...`);
 }
 
-await ensureNigeriaSelected(page);
+await ensureNigeriaSelected(masterTab);
 
 // ── Step 3: Sort by Most Replies ───────────────────────────────────────────────
+// CodeSnippets: unselected = svg data-icon="icon-reply-stroke" + <p>Most Replies</p>
+//               selected   = svg data-icon="icon-reply" (filled icon, no "-stroke")
 async function setSortToMostReplies(page) {
     log.info('Setting sort to Most Replies...');
-    try {
-        const switched = await page.evaluate(() => {
-            const buttons = Array.from(document.querySelectorAll('button'));
-            const repliesBtn = buttons.find((b) => (b.textContent || '').trim().includes('Most Replies'));
-            if (repliesBtn) { repliesBtn.click(); return true; }
-            return false;
+
+    const isMostRepliesSelected = async () => page.evaluate(() => {
+        const allButtons = Array.from(document.querySelectorAll('button'));
+        const repliesBtn = allButtons.find((b) => {
+            const paras = Array.from(b.querySelectorAll('p'));
+            return paras.some((p) => p.textContent.trim() === 'Most Replies');
         });
-        if (switched) {
-            await setTimeout(4000);
-            log.info('✓ "Most Replies" sort applied successfully.');
+        if (!repliesBtn) return false;
+        // Selected = filled icon-reply (no -stroke suffix)
+        const svg = repliesBtn.querySelector('svg[data-icon]');
+        return svg ? svg.getAttribute('data-icon') === 'icon-reply' : false;
+    });
+
+    if (await isMostRepliesSelected()) {
+        log.info('✓ Most Replies already selected.');
+        return;
+    }
+
+    const clicked = await page.evaluate(() => {
+        const allButtons = Array.from(document.querySelectorAll('button'));
+        const repliesBtn = allButtons.find((b) => {
+            const paras = Array.from(b.querySelectorAll('p'));
+            return paras.some((p) => p.textContent.trim() === 'Most Replies');
+        });
+        if (repliesBtn) { repliesBtn.click(); return true; }
+        return false;
+    });
+
+    if (clicked) {
+        await setTimeout(4000);
+        if (await isMostRepliesSelected()) {
+            log.info('✓ "Most Replies" sort applied and confirmed.');
         } else {
-            log.warning('Could not find "Most Replies" button.');
+            log.warning('"Most Replies" clicked but icon not yet confirmed as selected (page may still be loading).');
         }
-    } catch (e) {
-        log.warning(`Could not switch sort: ${e.message}`);
+    } else {
+        log.warning('Could not find "Most Replies" button.');
     }
 }
 
-await setSortToMostReplies(page);
+await setSortToMostReplies(masterTab);
 
-// ── Step 3.5: Capture & Store Navigation Screenshot ──────────────────────────
+// ── Step 3.5: Save Screenshot ──────────────────────────────────────────────────
 try {
-    const screenshot = await page.screenshot({ type: 'png' });
+    const screenshot = await masterTab.screenshot({ type: 'png' });
     await Actor.setValue('INSPIRATION_FILTERED.png', screenshot, { contentType: 'image/png' });
-    log.info('✓ Saved screenshot to Key-Value store artifact: INSPIRATION_FILTERED.png');
+    log.info('✓ Saved screenshot: INSPIRATION_FILTERED.png');
 } catch (screenErr) {
-    log.warning(`Could not save screenshot artifact: ${screenErr.message}`);
+    log.warning(`Could not save screenshot: ${screenErr.message}`);
 }
 
-// ── Step 4: Harvest Post URLs from Inspiration Timeline ────────────────────────
-log.info(`Harvesting up to ${maxPosts} posts from filtered Inspiration timeline...`);
+// ── Step 4: Harvest Post URLs from Master Tab ──────────────────────────────────
+// Scroll the master tab to find all target posts FIRST, then scrape them
+log.info(`Harvesting up to ${maxPosts} post URLs from filtered timeline...`);
 const targetPosts = [];
-const targetPostIds = new Set();
-let scrollAttempts = 0;
+const seenPostIds = new Set();
+let harvestScrolls = 0;
 
-while (targetPosts.length < maxPosts && scrollAttempts < 20) {
-    const batch = await page.evaluate(() => {
+while (targetPosts.length < maxPosts && harvestScrolls < 25) {
+    const batch = await masterTab.evaluate(() => {
         const links = Array.from(document.querySelectorAll('article[data-testid="tweet"] a[href*="/status/"]'));
-        const posts = [];
+        const found = [];
         for (const a of links) {
             const href = a.getAttribute('href') || '';
             const match = href.match(/([A-Za-z0-9_]+)\/status\/(\d+)/);
             if (match) {
-                posts.push({ url: `https://x.com/${match[1]}/status/${match[2]}`, postId: match[2] });
+                // Build clean URL without query params
+                const cleanUrl = `https://x.com/${match[1]}/status/${match[2]}`;
+                found.push({ url: cleanUrl, postId: match[2] });
             }
         }
-        return posts;
+        return found;
     });
 
     for (const p of batch) {
         if (targetPosts.length >= maxPosts) break;
-        if (!targetPostIds.has(p.postId) && !alreadyScrapedPostIds.has(p.postId)) {
-            targetPostIds.add(p.postId);
+        if (!seenPostIds.has(p.postId) && !alreadyScrapedPostIds.has(p.postId)) {
+            seenPostIds.add(p.postId);
             targetPosts.push(p);
         }
     }
 
     if (targetPosts.length >= maxPosts) break;
 
-    log.info(`Found ${targetPosts.length}/${maxPosts} target posts. Scrolling timeline...`);
-    await page.evaluate(() => window.scrollBy(0, 1500));
+    log.info(`Found ${targetPosts.length}/${maxPosts} posts. Scrolling master tab...`);
+    await masterTab.evaluate(() => window.scrollBy(0, 1500));
     await setTimeout(3000);
-    scrollAttempts++;
+    harvestScrolls++;
 }
 
-log.info(`✓ Collected ${targetPosts.length} posts to scrape.`);
+log.info(`✓ Collected ${targetPosts.length} target posts.`);
 
-// ── Step 5: Scrape Commenters from Each Post (Using Single Page) ─────────────
-async function scrapePostCommenters(page, postUrl, postId) {
-    log.info(`[Post ${postId}] Opening: ${postUrl}`);
+// ── Step 5: Scrape Each Post Using a Temporary Tab ────────────────────────────
+// Master tab stays untouched. For each post:
+//   open new temp tab → navigate → scroll & scrape → stream to Supabase → close tab
+async function scrapePostCommenters(context, postUrl, postId) {
+    log.info(`[Post ${postId}] Opening temp tab: ${postUrl}`);
     const scrapedCommenters = new Map();
+    let postTab = null;
 
     try {
         if (supabase) {
@@ -402,23 +394,25 @@ async function scrapePostCommenters(page, postUrl, postId) {
             if (postErr) log.warning(`[Supabase] scraped_posts note: ${postErr.message}`);
         }
 
-        await page.goto(postUrl, { waitUntil: 'domcontentloaded', timeout: 45000 });
+        // Open a brand-new temporary tab
+        postTab = await context.newPage();
+        await postTab.goto(postUrl, { waitUntil: 'domcontentloaded', timeout: 45000 });
 
         let tweetsFound = false;
         for (let attempt = 0; attempt < 3; attempt++) {
             try {
-                await page.waitForSelector('[data-testid="tweet"]', { timeout: 10000 });
+                await postTab.waitForSelector('[data-testid="tweet"]', { timeout: 10000 });
                 tweetsFound = true;
                 break;
             } catch {
                 log.info(`[Post ${postId}] Waiting for tweets (attempt ${attempt + 1}/3)...`);
-                await page.evaluate(() => window.scrollBy(0, 300));
+                await postTab.evaluate(() => window.scrollBy(0, 300));
                 await setTimeout(3000);
             }
         }
 
         if (!tweetsFound) {
-            log.warning(`[Post ${postId}] No tweets found after 3 attempts. Skipping.`);
+            log.warning(`[Post ${postId}] No tweets found. Skipping.`);
             return;
         }
 
@@ -429,10 +423,10 @@ async function scrapePostCommenters(page, postUrl, postId) {
         let atBottom = false;
 
         while (consecutiveEmptyScrolls < 3 && !atBottom) {
-            const currentBatch = await page.evaluate(() => {
+            const currentBatch = await postTab.evaluate(() => {
                 const tweets = Array.from(document.querySelectorAll('[data-testid="tweet"]'));
-                const list = [];
                 const commentTweets = tweets.length > 1 ? tweets.slice(1) : [];
+                const list = [];
 
                 for (const t of commentTweets) {
                     const userNameEl = t.querySelector('[data-testid="User-Name"]');
@@ -462,7 +456,7 @@ async function scrapePostCommenters(page, postUrl, postId) {
                 return { items: list, totalTweets: tweets.length };
             });
 
-            const commenters = currentBatch.items ?? currentBatch;
+            const commenters = currentBatch.items ?? [];
             log.info(`[Post ${postId}] Scroll batch: ${currentBatch.totalTweets} tweets, ${commenters.length} parsed.`);
 
             const newBatch = [];
@@ -497,7 +491,7 @@ async function scrapePostCommenters(page, postUrl, postId) {
                 for (const row of rows) await Actor.pushData(row);
             }
 
-            const { newScrollHeight, reachedBottom } = await page.evaluate(() => {
+            const { newScrollHeight, reachedBottom } = await postTab.evaluate(() => {
                 window.scrollBy(0, 1200);
                 return {
                     newScrollHeight: document.body.scrollHeight,
@@ -516,7 +510,7 @@ async function scrapePostCommenters(page, postUrl, postId) {
             lastHeight = newScrollHeight;
         }
 
-        log.info(`[Post ${postId}] ✓ Done. Total unique commenters: ${scrapedCommenters.size}.`);
+        log.info(`[Post ${postId}] ✓ Done. Scraped ${scrapedCommenters.size} unique commenters.`);
 
         if (supabase) {
             await supabase.from('scraped_posts').upsert({
@@ -526,23 +520,27 @@ async function scrapePostCommenters(page, postUrl, postId) {
                 commenter_count: scrapedCommenters.size,
             });
         }
+
     } catch (err) {
-        const msg = err.message || '';
-        if (msg.includes('closed') || msg.includes('disconnected') || msg.includes('Target')) {
-            log.warning(`[Post ${postId}] Browser session closed mid-scrape. Streamed ${scrapedCommenters.size} usernames before disconnect.`);
-        } else {
-            log.error(`[Post ${postId}] Error: ${msg}`);
+        log.error(`[Post ${postId}] Error: ${err.message}`);
+    } finally {
+        // Always close the temp tab to free resources
+        if (postTab && !postTab.isClosed()) {
+            await postTab.close().catch(() => {});
+            log.info(`[Post ${postId}] Temp tab closed.`);
         }
     }
 }
 
+// ── Run Scraping Loop ──────────────────────────────────────────────────────────
 let completedCount = 0;
 for (const post of targetPosts) {
-    await scrapePostCommenters(page, post.url, post.postId);
+    await scrapePostCommenters(context, post.url, post.postId);
     completedCount++;
     log.info(`Progress: ${completedCount}/${targetPosts.length} posts completed.`);
 }
 
-log.info(`Actor 1 finished. Completed ${completedCount} posts.`);
+log.info(`Actor 1 finished. Completed ${completedCount}/${targetPosts.length} posts.`);
+await masterTab.close().catch(() => {});
 await browser.close();
 await Actor.exit();
