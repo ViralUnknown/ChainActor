@@ -17,8 +17,9 @@ await Actor.init();
 
 const input = (await Actor.getInput()) || {};
 const {
-    batchSize = 50,
-    delayBetweenRequests = 1800,
+    batchSize = 100,
+    concurrency = 5,
+    delayBetweenRequests = 1600,
     cookies: rawCookiesInput = [],
     auth_token = '',
     ct0 = '',
@@ -27,8 +28,9 @@ const {
     supabaseAnonKey = process.env.AIS_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY,
 } = input;
 
-log.info('Starting Actor 2: About Location Filter Scraper with Multi-Cookie Rotation Pool', {
+log.info('Starting Actor 2: Parallel Multi-Browser About Location Scraper', {
     batchSize,
+    concurrency,
     delayBetweenRequests,
     maxRetries,
 });
@@ -125,20 +127,21 @@ if (cookiePool.length === 0) {
 
 // ── 46 to 49 Shuffle Threshold Generator ─────────────────────────────────────
 // X has a strict ~50 request rate limit on /about.
-// We shuffle between 46 and 49 (46, 47, 48, or 49) before rotating to the next account.
+// Each parallel worker rotates cookies every 46, 47, 48, or 49 profiles.
 function getRandomRotationThreshold() {
     return 46 + Math.floor(Math.random() * 4);
 }
 
-// ── Persistent Browser Context Creation ──────────────────────────────────────
+// ── Persistent Browser Context Creation per Worker ───────────────────────────
 const braveExecutablePath = process.env.BRAVE_PATH || '/usr/bin/brave-browser';
 const executablePath = fs.existsSync(braveExecutablePath) ? braveExecutablePath : undefined;
 
-async function createBravePersistentContext(cookieData, sessionIndex) {
-    const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), `brave-session-${sessionIndex}-${Date.now()}-`));
-    const alias = cookieData?.alias || `Session #${sessionIndex + 1}`;
+async function createWorkerPersistentContext(cookieData, workerId) {
+    // Unique per-worker persistent directory to prevent locks across concurrent instances
+    const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), `brave-w${workerId}-${Date.now()}-`));
+    const alias = cookieData?.alias || `Worker #${workerId + 1}`;
 
-    log.info(`[${alias}] Launching persistent browser context...`, {
+    log.info(`[Worker ${workerId + 1}] Launching isolated browser context for [${alias}]...`, {
         executable: executablePath || 'Playwright Chromium',
         userDataDir,
     });
@@ -155,13 +158,13 @@ async function createBravePersistentContext(cookieData, sessionIndex) {
         ],
     });
 
-    // Inject cookies
+    // Inject cookies into this isolated worker session
     if (cookieData?.cookies?.length > 0) {
         await context.addCookies(cookieData.cookies);
-        log.info(`[${alias}] Injected ${cookieData.cookies.length} cookies.`);
+        log.debug(`[Worker ${workerId + 1}] Injected ${cookieData.cookies.length} cookies.`);
     }
 
-    // Block images, media, fonts for fast lightweight scraping
+    // Resource blocking: abort heavy media/fonts to save RAM and accelerate parallel tabs
     await context.route('**/*', (route) => {
         const type = route.request().resourceType();
         if (['image', 'media', 'font'].includes(type)) {
@@ -170,14 +173,14 @@ async function createBravePersistentContext(cookieData, sessionIndex) {
         return route.continue();
     });
 
-    // Warm-up: load x.com/home so cookies are committed to persistent session
+    // Session warm-up: load x.com/home so cookies are committed to persistent disk storage
     if (cookieData?.cookies?.length > 0) {
         const warmupPage = await context.newPage();
         try {
             await warmupPage.goto('https://x.com/home', { waitUntil: 'domcontentloaded', timeout: 25000 });
-            log.info(`[${alias}] Session warm-up completed successfully.`);
+            log.debug(`[Worker ${workerId + 1}] Session warm-up complete for [${alias}].`);
         } catch {
-            log.debug(`[${alias}] Session warm-up timed out — proceeding.`);
+            log.debug(`[Worker ${workerId + 1}] Session warm-up timed out — proceeding.`);
         } finally {
             await warmupPage.close().catch(() => {});
         }
@@ -186,7 +189,7 @@ async function createBravePersistentContext(cookieData, sessionIndex) {
     return { context, userDataDir, alias };
 }
 
-async function cleanupSession(sessionObj) {
+async function cleanupWorkerSession(sessionObj) {
     if (!sessionObj) return;
     try {
         if (sessionObj.context) {
@@ -200,28 +203,8 @@ async function cleanupSession(sessionObj) {
     }
 }
 
-// ── Fetch Pending Commenters from Supabase ───────────────────────────────────
-log.info(`Fetching up to ${batchSize} pending commenter usernames from Supabase...`);
-const { data: pendingUsers, error: fetchErr } = await supabase
-    .from('commenter_usernames')
-    .select('username')
-    .eq('status', 'pending')
-    .limit(batchSize);
-
-if (fetchErr) {
-    log.error(`Failed to fetch pending leads: ${fetchErr.message}`);
-    await Actor.exit();
-}
-
-if (!pendingUsers || pendingUsers.length === 0) {
-    log.info('No pending leads found in Supabase queue. Done.');
-    await Actor.exit();
-}
-
-log.info(`Found ${pendingUsers.length} pending profiles to check.`);
-
-// ── Scrape Single About Profile ──────────────────────────────────────────────
-async function scrapeAboutProfile(context, username, alias) {
+// ── Single Profile Scraper ───────────────────────────────────────────────────
+async function scrapeAboutProfile(context, username, workerLabel) {
     const page = await context.newPage();
     await page.emulateMedia({ reducedMotion: 'reduce' });
 
@@ -230,23 +213,22 @@ async function scrapeAboutProfile(context, username, alias) {
         await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
 
         const currentUrl = page.url();
-        // Detect login redirect or auth wall
+        // Check for login wall or redirect
         if (currentUrl.includes('/i/flow/login') || currentUrl.includes('/login')) {
             return {
                 username,
                 isRateLimited: true,
-                errorMessage: 'Redirected to login page (session expired or unauthenticated)',
+                errorMessage: 'Redirected to login wall',
             };
         }
 
-        // Wait for pivot elements
         try {
             await page.waitForSelector('[data-testid="pivot"]', { timeout: 12000 });
         } catch {
-            await setTimeout(2000);
+            await setTimeout(1500);
         }
 
-        // Check if rate limited message or error banner is visible
+        // Check for rate limit or error banners on page
         const pageText = await page.evaluate(() => document.body?.innerText || '');
         if (
             pageText.includes('Rate limit exceeded') ||
@@ -256,7 +238,7 @@ async function scrapeAboutProfile(context, username, alias) {
             return {
                 username,
                 isRateLimited: true,
-                errorMessage: 'Rate limit or temporary X error detected on page',
+                errorMessage: 'Rate limit or error message on page',
             };
         }
 
@@ -299,204 +281,191 @@ async function scrapeAboutProfile(context, username, alias) {
     }
 }
 
-// ── Multi-Rotable Session Pool Controller ────────────────────────────────────
-let cookieIndex = 0;
-let profileCounter = 0;
-let nextRotationAt = getRandomRotationThreshold();
+// ── Fetch Pending Commenters from Supabase ───────────────────────────────────
+log.info(`Fetching up to ${batchSize} pending commenter usernames from Supabase...`);
+const { data: pendingUsers, error: fetchErr } = await supabase
+    .from('commenter_usernames')
+    .select('username')
+    .eq('status', 'pending')
+    .limit(batchSize);
 
-let currentSession = await createBravePersistentContext(
-    cookiePool[cookieIndex],
-    cookieIndex
-);
-
-log.info(`Initial session active: [${currentSession.alias}]. Will rotate after ${nextRotationAt} profiles (46-49 shuffle).`);
-
-async function rotateToNextCookie(reason = 'Threshold reached') {
-    if (cookiePool.length <= 1) {
-        log.warning(`Rotation triggered (${reason}), but only 1 cookie account is in pool. Re-initializing current session...`);
-        await cleanupSession(currentSession);
-        await setTimeout(2000);
-        currentSession = await createBravePersistentContext(cookiePool[0], 0);
-        profileCounter = 0;
-        nextRotationAt = getRandomRotationThreshold();
-        return;
-    }
-
-    const previousAlias = currentSession.alias;
-    await cleanupSession(currentSession);
-
-    cookieIndex = (cookieIndex + 1) % cookiePool.length;
-    const nextCookie = cookiePool[cookieIndex];
-
-    profileCounter = 0;
-    nextRotationAt = getRandomRotationThreshold();
-
-    log.info(`[ROTATION] ${reason}. Rotating from [${previousAlias}] -> [${nextCookie.alias}]. Next shuffle at ${nextRotationAt} profiles.`);
-    currentSession = await createBravePersistentContext(nextCookie, cookieIndex);
+if (fetchErr) {
+    log.error(`Failed to fetch pending leads: ${fetchErr.message}`);
+    await Actor.exit();
 }
 
-// ── Processing Loop ──────────────────────────────────────────────────────────
+if (!pendingUsers || pendingUsers.length === 0) {
+    log.info('No pending leads found in Supabase queue. Done.');
+    await Actor.exit();
+}
+
+log.info(`Found ${pendingUsers.length} pending profiles to process in parallel.`);
+
+// ── Shared State & Statistics ────────────────────────────────────────────────
 let processedCount = 0;
 let keptCount = 0;
 let deletedCount = 0;
 const retryQueue = [];
 
-for (let i = 0; i < pendingUsers.length; i++) {
-    const userRow = pendingUsers[i];
-    const username = userRow.username;
+// ── Parallel Worker Architecture ─────────────────────────────────────────────
+async function runParallelScraper(targetList, numWorkers) {
+    // Thread-safe work queue
+    const queue = [...targetList];
+    const actualConcurrency = Math.min(numWorkers, queue.length) || 1;
 
-    log.info(`[${i + 1}/${pendingUsers.length}] [${currentSession.alias}] (Req ${profileCounter + 1}/${nextRotationAt}) Checking @${username}/about ...`);
+    log.info(`Spawning ${actualConcurrency} parallel Brave worker(s) across shared queue of ${queue.length} handles...`);
 
-    let result = await scrapeAboutProfile(currentSession.context, username, currentSession.alias);
+    async function workerThread(workerId) {
+        // Assign distinct initial cookie slot to worker
+        let cookieIndex = workerId % (cookiePool.length || 1);
+        let currentStorage = cookiePool.length > 0 ? cookiePool[cookieIndex] : null;
 
-    // If rate limited or login redirect, rotate session immediately and retry this user once
-    if (result.isRateLimited) {
-        log.warning(`[RATE-LIMIT] @${username} hit rate limit / auth wall with [${currentSession.alias}]: ${result.errorMessage}.`);
-        await rotateToNextCookie('Hit rate limit / auth wall');
-        log.info(`Retrying @${username} immediately using newly rotated session [${currentSession.alias}]...`);
-        result = await scrapeAboutProfile(currentSession.context, username, currentSession.alias);
+        // Launch an isolated persistent browser context for this worker
+        let session = await createWorkerPersistentContext(currentStorage, workerId);
+
+        let profileCounter = 0;
+        let nextRotationAt = getRandomRotationThreshold();
+
+        log.info(`[Worker ${workerId + 1}] Online with [${session.alias}]. Will rotate after ${nextRotationAt} profiles (46-49 shuffle).`);
+
+        try {
+            while (queue.length > 0) {
+                const userRow = queue.shift();
+                if (!userRow) break;
+
+                const username = typeof userRow === 'string' ? userRow : userRow.username;
+
+                // 46-49 Shuffle: Rotate session cookie for this worker independently
+                if (profileCounter > 0 && cookiePool.length > 1 && profileCounter >= nextRotationAt) {
+                    log.info(`[Worker ${workerId + 1}] Reached ${profileCounter} profiles (46-49 shuffle). Rotating cookie session...`);
+                    await cleanupWorkerSession(session);
+
+                    cookieIndex = (cookieIndex + 1) % cookiePool.length;
+                    session = await createWorkerPersistentContext(cookiePool[cookieIndex], workerId);
+
+                    profileCounter = 0;
+                    nextRotationAt = getRandomRotationThreshold();
+                    log.info(`[Worker ${workerId + 1}] Switched to [${session.alias}]. Next rotation at ${nextRotationAt}.`);
+                }
+
+                log.info(`[Worker ${workerId + 1}] [${session.alias}] (Req ${profileCounter + 1}/${nextRotationAt} | Remaining: ${queue.length}) -> @${username}/about`);
+
+                let result = await scrapeAboutProfile(session.context, username, `Worker #${workerId + 1}`);
+
+                // Rate-limit auto-rotation: if rate limited or redirected to login, rotate this worker immediately
+                if (result.isRateLimited) {
+                    log.warning(`[Worker ${workerId + 1}] [RATE-LIMIT] @${username} triggered limit/auth wall on [${session.alias}]: ${result.errorMessage}. Rotating immediately...`);
+                    await cleanupWorkerSession(session);
+
+                    cookieIndex = (cookieIndex + 1) % (cookiePool.length || 1);
+                    session = await createWorkerPersistentContext(cookiePool[cookieIndex], workerId);
+
+                    profileCounter = 0;
+                    nextRotationAt = getRandomRotationThreshold();
+
+                    log.info(`[Worker ${workerId + 1}] Retrying @${username} with fresh rotated session [${session.alias}]...`);
+                    result = await scrapeAboutProfile(session.context, username, `Worker #${workerId + 1}`);
+                }
+
+                // If still rate limited or errored out, enqueue for retry pass — do NOT hard delete
+                if (result.isRateLimited || result.accountBasedIn === 'Error') {
+                    log.warning(`[Worker ${workerId + 1}] Could not confirm @${username} (${result.errorMessage || 'Error'}). Added to retry queue.`);
+                    retryQueue.push(username);
+                    profileCounter++;
+                    processedCount++;
+                    continue;
+                }
+
+                const accountBasedIn = result.accountBasedIn;
+                const connectedVia = result.connectedVia;
+
+                const isNigerian =
+                    accountBasedIn.toLowerCase().includes('nigeria') ||
+                    connectedVia.toLowerCase().includes('nigeria');
+
+                if (isNigerian) {
+                    log.info(`[Worker ${workerId + 1}] [PASS] @${username} is Nigerian! (Based: "${accountBasedIn}", Connected: "${connectedVia}")`);
+                    await supabase
+                        .from('commenter_usernames')
+                        .update({
+                            account_based_in: accountBasedIn,
+                            connected_via: connectedVia,
+                            is_nigerian: true,
+                            status: 'about_checked',
+                            about_checked_at: new Date().toISOString(),
+                        })
+                        .eq('username', username);
+
+                    await Actor.pushData({
+                        username,
+                        accountBasedIn,
+                        connectedVia,
+                        isNigerian: true,
+                        status: 'about_checked',
+                    });
+                    keptCount++;
+                } else {
+                    log.info(`[Worker ${workerId + 1}] [DELETE] @${username} is non-Nigerian (Based: "${accountBasedIn}", Connected: "${connectedVia}"). Hard deleting from DB.`);
+                    await supabase
+                        .from('commenter_usernames')
+                        .delete()
+                        .eq('username', username);
+
+                    await Actor.pushData({
+                        username,
+                        accountBasedIn,
+                        connectedVia,
+                        isNigerian: false,
+                        action: 'hard_deleted',
+                    });
+                    deletedCount++;
+                }
+
+                profileCounter++;
+                processedCount++;
+
+                if (delayBetweenRequests > 0) {
+                    await setTimeout(delayBetweenRequests);
+                }
+            }
+        } catch (err) {
+            log.error(`[Worker ${workerId + 1}] Fatal worker error: ${err.message}`);
+        } finally {
+            await cleanupWorkerSession(session);
+            log.info(`[Worker ${workerId + 1}] Finished queue tasks and shut down.`);
+        }
     }
 
-    // If still rate limited or error occurred, push to retryQueue and don't hard-delete yet
-    if (result.isRateLimited || result.accountBasedIn === 'Error') {
-        log.warning(`Could not confirm location for @${username} (${result.errorMessage || 'Error'}). Enqueued for retry pass.`);
-        retryQueue.push(username);
-        profileCounter++;
-        processedCount++;
-        continue;
-    }
+    // Spawn N workers with a 4-second stagger delay between startup to avoid CPU/RAM spikes
+    const workerPromises = Array.from({ length: actualConcurrency }, async (_, i) => {
+        if (i > 0) {
+            log.info(`[Worker ${i + 1}] Staggering startup: waiting ${i * 4}s...`);
+            await setTimeout(i * 4000);
+        }
+        return workerThread(i);
+    });
 
-    const accountBasedIn = result.accountBasedIn;
-    const connectedVia = result.connectedVia;
-
-    const isNigerian =
-        accountBasedIn.toLowerCase().includes('nigeria') ||
-        connectedVia.toLowerCase().includes('nigeria');
-
-    if (isNigerian) {
-        log.info(`[PASS] @${username} is Nigerian! Based in: "${accountBasedIn}", Connected: "${connectedVia}". Updating Supabase.`);
-        await supabase
-            .from('commenter_usernames')
-            .update({
-                account_based_in: accountBasedIn,
-                connected_via: connectedVia,
-                is_nigerian: true,
-                status: 'about_checked',
-                about_checked_at: new Date().toISOString(),
-            })
-            .eq('username', username);
-
-        await Actor.pushData({
-            username,
-            accountBasedIn,
-            connectedVia,
-            isNigerian: true,
-            status: 'about_checked',
-        });
-        keptCount++;
-    } else {
-        // Confirmed non-Nigerian: hard delete from Supabase
-        log.info(`[DELETE] @${username} is not Nigerian (Based in: "${accountBasedIn}", Connected: "${connectedVia}"). Hard deleting from DB.`);
-        await supabase
-            .from('commenter_usernames')
-            .delete()
-            .eq('username', username);
-
-        await Actor.pushData({
-            username,
-            accountBasedIn,
-            connectedVia,
-            isNigerian: false,
-            action: 'hard_deleted',
-        });
-        deletedCount++;
-    }
-
-    profileCounter++;
-    processedCount++;
-
-    // Check if 46-49 shuffle threshold has been reached
-    if (profileCounter >= nextRotationAt) {
-        await rotateToNextCookie(`Reached ${profileCounter} profiles (within 46-49 shuffle range)`);
-    }
-
-    if (delayBetweenRequests > 0) {
-        await setTimeout(delayBetweenRequests);
-    }
+    await Promise.all(workerPromises);
 }
+
+// ── Run Primary Parallel Scrape ──────────────────────────────────────────────
+await runParallelScraper(pendingUsers, concurrency);
 
 // ── Retry Pass for Failed Handles ────────────────────────────────────────────
 if (retryQueue.length > 0 && maxRetries > 0) {
-    log.info(`Starting retry pass for ${retryQueue.length} failed/rate-limited handles...`);
-    // Rotate to fresh cookie before starting retry pass
-    await rotateToNextCookie('Starting retry pass');
-
-    for (const username of retryQueue) {
-        log.info(`[RETRY] [${currentSession.alias}] Checking @${username}/about ...`);
-        const result = await scrapeAboutProfile(currentSession.context, username, currentSession.alias);
-
-        if (result.isRateLimited || result.accountBasedIn === 'Error') {
-            log.error(`[RETRY FAILED] @${username} still failed on retry: ${result.errorMessage || 'Unknown error'}. Leaving as pending in Supabase.`);
-            continue;
-        }
-
-        const accountBasedIn = result.accountBasedIn;
-        const connectedVia = result.connectedVia;
-        const isNigerian =
-            accountBasedIn.toLowerCase().includes('nigeria') ||
-            connectedVia.toLowerCase().includes('nigeria');
-
-        if (isNigerian) {
-            log.info(`[RETRY PASS] @${username} verified as Nigerian! Updating Supabase.`);
-            await supabase
-                .from('commenter_usernames')
-                .update({
-                    account_based_in: accountBasedIn,
-                    connected_via: connectedVia,
-                    is_nigerian: true,
-                    status: 'about_checked',
-                    about_checked_at: new Date().toISOString(),
-                })
-                .eq('username', username);
-
-            await Actor.pushData({
-                username,
-                accountBasedIn,
-                connectedVia,
-                isNigerian: true,
-                status: 'about_checked',
-            });
-            keptCount++;
-        } else {
-            log.info(`[RETRY DELETE] @${username} confirmed non-Nigerian. Hard deleting.`);
-            await supabase.from('commenter_usernames').delete().eq('username', username);
-            await Actor.pushData({
-                username,
-                accountBasedIn,
-                connectedVia,
-                isNigerian: false,
-                action: 'hard_deleted',
-            });
-            deletedCount++;
-        }
-
-        profileCounter++;
-        if (profileCounter >= nextRotationAt) {
-            await rotateToNextCookie(`Reached shuffle limit (${profileCounter}) during retry pass`);
-        }
-        await setTimeout(delayBetweenRequests);
-    }
+    log.info(`Starting retry pass for ${retryQueue.length} failed/rate-limited handles using 2 workers...`);
+    const retryTargets = [...retryQueue];
+    retryQueue.length = 0; // Reset queue
+    await setTimeout(3000);
+    await runParallelScraper(retryTargets, Math.min(2, concurrency));
 }
-
-// ── Cleanup & Exit ───────────────────────────────────────────────────────────
-await cleanupSession(currentSession);
 
 log.info('====================================================');
 log.info(`Actor 2 completed successfully.`);
 log.info(`Total Processed: ${processedCount}`);
 log.info(`Kept (Nigerian): ${keptCount}`);
 log.info(`Deleted (Non-Nigerian): ${deletedCount}`);
-log.info(`Pending Retries Remaining: ${retryQueue.length}`);
+log.info(`Failed/Unresolved Retries: ${retryQueue.length}`);
 log.info('====================================================');
 
 await Actor.exit();

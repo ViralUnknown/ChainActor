@@ -3,18 +3,26 @@
     "type": "object",
     "schemaVersion": 1,
     "properties": {
+        "concurrency": {
+            "title": "Concurrency (Parallel Workers)",
+            "type": "integer",
+            "description": "Number of parallel isolated browser instances running concurrently (default 5).",
+            "default": 5,
+            "minimum": 1,
+            "maximum": 10
+        },
         "batchSize": {
             "title": "Batch Size",
             "type": "integer",
             "description": "Number of pending profiles to fetch and process from Supabase per run.",
-            "default": 50,
+            "default": 100,
             "minimum": 1
         },
         "delayBetweenRequests": {
             "title": "Delay Between Requests (ms)",
             "type": "integer",
-            "description": "Delay between each profile navigation (default 1800ms).",
-            "default": 1800,
+            "description": "Delay between each profile navigation per worker (default 1600ms).",
+            "default": 1600,
             "minimum": 500
         },
         "cookies": {
