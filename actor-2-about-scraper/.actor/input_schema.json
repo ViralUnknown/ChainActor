@@ -13,28 +13,35 @@
         "delayBetweenRequests": {
             "title": "Delay Between Requests (ms)",
             "type": "integer",
-            "description": "Delay between each profile navigation.",
+            "description": "Delay between each profile navigation (default 1800ms).",
             "default": 1800,
             "minimum": 500
         },
         "cookies": {
-            "title": "Session Cookies (JSON or String)",
+            "title": "Multi-Account Session Cookies Pool",
             "type": "array",
-            "description": "X.com session cookies pool.",
+            "description": "Pool of session cookies for multiple X accounts (raw cookie strings or objects with alias + cookie_string). Rotates every 46-49 profiles or when rate-limited.",
             "prefill": [],
             "editor": "json"
         },
         "auth_token": {
-            "title": "auth_token (Optional direct cookie)",
+            "title": "auth_token (Optional primary direct cookie)",
             "type": "string",
             "description": "Direct X.com auth_token value.",
             "editor": "textfield"
         },
         "ct0": {
-            "title": "ct0 (Optional direct cookie)",
+            "title": "ct0 (Optional primary direct cookie)",
             "type": "string",
             "description": "Direct X.com ct0 value.",
             "editor": "textfield"
+        },
+        "maxRetries": {
+            "title": "Max Retries",
+            "type": "integer",
+            "description": "Number of retry passes for profiles that hit transient errors or rate limits.",
+            "default": 1,
+            "minimum": 0
         },
         "supabaseUrl": {
             "title": "Supabase Project URL",
