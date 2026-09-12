@@ -197,91 +197,110 @@ try {
 await setTimeout(4000);
 
 // ── Step 2: Ensure Country is Nigeria ─────────────────────────────────────────
+// ── Step 2: Ensure Country is Nigeria ─────────────────────────────────────────
 async function ensureNigeriaSelected(page) {
     log.info('Checking if Nigeria country filter is active...');
 
-    const headerStatus = await page.evaluate(() => {
-        const buttons = Array.from(document.querySelectorAll('button'));
-        const trigger = buttons.find((b) => {
-            const txt = (b.textContent || '').trim();
-            return txt.includes('NGA') || txt.includes('EN') || txt.includes('All Countries') || txt.includes('Country') || txt.includes('Filter') || txt.includes('💬') || txt.includes('🌎');
+    const getHeaderStatus = async () => {
+        return await page.evaluate(() => {
+            const buttons = Array.from(document.querySelectorAll('button, div[role="button"]'));
+            const trigger = buttons.find((b) => {
+                const txt = (b.textContent || '').trim();
+                return txt.includes('NGA') || txt.includes('EN') || txt.includes('All Countries') || txt.includes('Country') || txt.includes('Filter') || txt.includes('💬') || txt.includes('🌎');
+            });
+            const text = trigger ? trigger.textContent.trim() : '';
+            return {
+                text,
+                isNga: text.includes('NGA') || text.includes('🇳🇬 NGA') || text.includes('🇳🇬'),
+            };
         });
-        const text = trigger ? trigger.textContent.trim() : '';
-        return {
-            text,
-            isNga: text.includes('NGA') || text.includes('🇳🇬 NGA'),
-        };
-    });
+    };
 
+    let headerStatus = await getHeaderStatus();
     log.info(`Country filter header button status: "${headerStatus.text}" (isNga: ${headerStatus.isNga})`);
 
     if (headerStatus.isNga) {
         log.info('✓ Nigeria filter already active.');
-    } else {
-        log.info('Nigeria filter not active. Opening filter modal...');
+        return;
+    }
+
+    log.info('Nigeria filter not active. Opening filter modal...');
+    for (let attempt = 1; attempt <= 3; attempt++) {
+        log.info(`Nigeria selection attempt ${attempt}/3...`);
         try {
-            const opened = await page.evaluate(() => {
-                const buttons = Array.from(document.querySelectorAll('button'));
-                const trigger = buttons.find((b) => {
-                    const txt = (b.textContent || '').trim();
-                    return txt.includes('NGA') || txt.includes('EN') || txt.includes('All Countries') || txt.includes('Country') || txt.includes('Filter') || txt.includes('💬') || txt.includes('🌎');
-                });
-                if (trigger) { trigger.click(); return true; }
-                return false;
-            });
-
-            if (opened) {
-                await setTimeout(2000);
-
-                // Step A: Click "Country" tab inside modal if currently on Language tab
-                log.info('Switching to Country tab in modal...');
+            // 1. Open filter modal if not open
+            const isModalOpen = await page.evaluate(() => !!document.querySelector('div[role="dialog"], [aria-modal="true"]'));
+            if (!isModalOpen) {
                 await page.evaluate(() => {
-                    const buttons = Array.from(document.querySelectorAll('button'));
-                    const countryTab = buttons.find((b) => {
+                    const buttons = Array.from(document.querySelectorAll('button, div[role="button"]'));
+                    const trigger = buttons.find((b) => {
                         const txt = (b.textContent || '').trim();
-                        return txt === 'Country' || txt.includes('Country') || txt.includes('🌎');
+                        return txt.includes('NGA') || txt.includes('EN') || txt.includes('All Countries') || txt.includes('Country') || txt.includes('Filter') || txt.includes('💬') || txt.includes('🌎');
                     });
-                    if (countryTab) countryTab.click();
+                    if (trigger) trigger.click();
                 });
-
                 await setTimeout(2000);
-
-                // Step B: Find and click "Nigeria" option in country list
-                log.info('Selecting Nigeria from country list...');
-                const clickedNg = await page.evaluate(() => {
-                    const buttons = Array.from(document.querySelectorAll('button'));
-                    const ngOption = buttons.find((b) => {
-                        const txt = (b.textContent || '').trim();
-                        return txt.includes('Nigeria') || (txt.includes('🇳🇬') && !txt.includes('NGA'));
-                    });
-                    if (ngOption) {
-                        ngOption.scrollIntoView?.({ block: 'center' });
-                        ngOption.click();
-                        return true;
-                    }
-                    return false;
-                });
-
-                if (clickedNg) {
-                    log.info('✓ Clicked Nigeria option.');
-                    await setTimeout(2500);
-
-                    // Step C: Close modal if close button exists
-                    await page.evaluate(() => {
-                        const closeBtn = document.querySelector('button span svg[data-icon="icon-close"]')?.closest('button');
-                        if (closeBtn) closeBtn.click();
-                    });
-                    await setTimeout(3500);
-                    log.info('✓ Nigeria country filter selected successfully.');
-                } else {
-                    log.warning('Could not find Nigeria option in country list.');
-                }
-            } else {
-                log.warning('Could not find filter modal trigger button.');
             }
-        } catch (e) {
-            log.warning(`Country selection note: ${e.message}`);
+
+            // 2. Ensure "Country" tab inside modal is active
+            await page.evaluate(() => {
+                const modal = document.querySelector('div[role="dialog"], [aria-modal="true"]') || document.body;
+                const buttons = Array.from(modal.querySelectorAll('button, div[role="button"], span'));
+                const countryTab = buttons.find((b) => {
+                    const txt = (b.textContent || '').trim();
+                    return txt === 'Country' || txt.includes('Country') || txt.includes('🌎');
+                });
+                if (countryTab) countryTab.click();
+            });
+            await setTimeout(2000);
+
+            // 3. Scroll to and click Nigeria option in modal list
+            const ngLocator = page.locator('text="Nigeria"').first();
+            if (await ngLocator.count() > 0) {
+                await ngLocator.scrollIntoViewIfNeeded().catch(() => {});
+                await setTimeout(500);
+                await ngLocator.click({ force: true }).catch(() => {});
+            }
+
+            // Fallback JS click on Nigeria row/button/span inside modal
+            await page.evaluate(() => {
+                const modal = document.querySelector('div[role="dialog"], [aria-modal="true"]') || document.body;
+                const elements = Array.from(modal.querySelectorAll('*'));
+                const ngElem = elements.find((el) => {
+                    const txt = (el.textContent || '').trim();
+                    return (txt === 'Nigeria' || txt.includes('Nigeria')) && el.children.length === 0;
+                });
+                if (ngElem) {
+                    const clickTarget = ngElem.closest('button, [role="button"], [role="option"], div') || ngElem;
+                    clickTarget.scrollIntoView?.({ block: 'center' });
+                    ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click'].forEach(evtType => {
+                        clickTarget.dispatchEvent(new MouseEvent(evtType, { bubbles: true, cancelable: true, view: window }));
+                    });
+                }
+            });
+            await setTimeout(2500);
+
+            // 4. Close modal if still visible
+            await page.evaluate(() => {
+                const closeBtn = document.querySelector('button[aria-label="Close"], button span svg[data-icon="icon-close"]')?.closest('button');
+                if (closeBtn) closeBtn.click();
+            });
+            await setTimeout(3000);
+
+            // 5. Check Header Status Confirmation
+            headerStatus = await getHeaderStatus();
+            log.info(`After attempt ${attempt}, header button status: "${headerStatus.text}" (isNga: ${headerStatus.isNga})`);
+            if (headerStatus.isNga) {
+                log.info(`✓ Verified header button updated to "${headerStatus.text}". Nigeria country filter selected successfully.`);
+                return;
+            }
+        } catch (err) {
+            log.warning(`Attempt ${attempt} failed with error: ${err.message}`);
         }
+    }
+
+    if (!headerStatus.isNga) {
+        log.warning(`❌ Nigeria filter could not be verified. Header button status remains: "${headerStatus.text}". Proceeding...`);
     }
 }
 
