@@ -109,9 +109,9 @@ const cleanBrowserlessKey = (browserlessApiKey || process.env.BROWSERLESS_API_KE
 
 if (cleanBrowserlessKey) {
     try {
-        let baseEndpoint = (browserlessEndpoint || 'wss://chrome.browserless.io/playwright').trim();
+        let baseEndpoint = (browserlessEndpoint || 'wss://chrome.browserless.io').trim();
+        baseEndpoint = baseEndpoint.replace(/\/playwright\/?$/, '');
         if (baseEndpoint.endsWith('/')) baseEndpoint = baseEndpoint.slice(0, -1);
-        if (!baseEndpoint.includes('/playwright')) baseEndpoint += '/playwright';
 
         const wsEndpoint = `${baseEndpoint}?token=${cleanBrowserlessKey}&timeout=120000&stealth=true`;
         log.info(`Attempting Browserless connection...`, { endpoint: wsEndpoint.replace(cleanBrowserlessKey, '[REDACTED]') });
