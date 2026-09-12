@@ -279,20 +279,18 @@ async function ensureNigeriaSelected(page) {
 await ensureNigeriaSelected(masterTab);
 
 // ── Step 3: Sort by Most Replies ───────────────────────────────────────────────
-// CodeSnippets: unselected = svg data-icon="icon-reply-stroke" + <p>Most Replies</p>
-//               selected   = svg data-icon="icon-reply" (filled icon, no "-stroke")
+// HTML (from CodeSnippets): <button type="button" class="jf-element">...<p class="jf-element">Most Replies</p>...
+// Unselected svg: data-icon="icon-reply-stroke" | Selected svg: data-icon="icon-reply"
 async function setSortToMostReplies(page) {
     log.info('Setting sort to Most Replies...');
 
+    // Check if it's already selected: selected button has svg data-icon="icon-reply" (filled, no "-stroke")
     const isMostRepliesSelected = async () => page.evaluate(() => {
-        const allButtons = Array.from(document.querySelectorAll('button'));
-        const repliesBtn = allButtons.find((b) => {
-            const paras = Array.from(b.querySelectorAll('p'));
-            return paras.some((p) => p.textContent.trim() === 'Most Replies');
-        });
-        if (!repliesBtn) return false;
-        // Selected = filled icon-reply (no -stroke suffix)
-        const svg = repliesBtn.querySelector('svg[data-icon]');
+        const btn = Array.from(document.querySelectorAll('button')).find(
+            (b) => Array.from(b.querySelectorAll('p')).some((p) => p.textContent.trim() === 'Most Replies')
+        );
+        if (!btn) return false;
+        const svg = btn.querySelector('svg[data-icon]');
         return svg ? svg.getAttribute('data-icon') === 'icon-reply' : false;
     });
 
@@ -301,25 +299,30 @@ async function setSortToMostReplies(page) {
         return;
     }
 
-    const clicked = await page.evaluate(() => {
-        const allButtons = Array.from(document.querySelectorAll('button'));
-        const repliesBtn = allButtons.find((b) => {
-            const paras = Array.from(b.querySelectorAll('p'));
-            return paras.some((p) => p.textContent.trim() === 'Most Replies');
+    // Use Playwright locator to directly click the "Most Replies" button
+    // The button is: <button type="button" class="jf-element"> containing <p>Most Replies</p>
+    try {
+        const repliesBtn = page.locator('button:has(p:text-is("Most Replies"))').first();
+        await repliesBtn.waitFor({ state: 'visible', timeout: 8000 });
+        await repliesBtn.click();
+        log.info('✓ Clicked "Most Replies" button via locator.');
+    } catch {
+        // Fallback: JS click
+        log.info('Locator click failed, trying JS fallback...');
+        await page.evaluate(() => {
+            const btn = Array.from(document.querySelectorAll('button')).find(
+                (b) => Array.from(b.querySelectorAll('p')).some((p) => p.textContent.trim() === 'Most Replies')
+            );
+            if (btn) btn.click();
         });
-        if (repliesBtn) { repliesBtn.click(); return true; }
-        return false;
-    });
+    }
 
-    if (clicked) {
-        await setTimeout(4000);
-        if (await isMostRepliesSelected()) {
-            log.info('✓ "Most Replies" sort applied and confirmed.');
-        } else {
-            log.warning('"Most Replies" clicked but icon not yet confirmed as selected (page may still be loading).');
-        }
+    await setTimeout(4000);
+
+    if (await isMostRepliesSelected()) {
+        log.info('✓ "Most Replies" sort confirmed active (svg icon-reply detected).');
     } else {
-        log.warning('Could not find "Most Replies" button.');
+        log.warning('"Most Replies" clicked but svg icon not yet "icon-reply". Page may still re-rendering — proceeding.');
     }
 }
 
