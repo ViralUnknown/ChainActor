@@ -67,7 +67,7 @@
             "title": "Browserless Endpoint (Optional)",
             "type": "string",
             "description": "Browserless WebSocket endpoint URL.",
-            "default": "wss://chrome.browserless.io",
+            "default": "wss://chrome.browserless.io/playwright",
             "editor": "textfield"
         }
     },

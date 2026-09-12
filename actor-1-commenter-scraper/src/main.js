@@ -23,7 +23,7 @@ const {
     supabaseUrl = process.env.AIS_SUPABASE_URL || process.env.SUPABASE_URL,
     supabaseAnonKey = process.env.AIS_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY,
     browserlessApiKey = process.env.BROWSERLESS_API_KEY,
-    browserlessEndpoint = 'wss://chrome.browserless.io',
+    browserlessEndpoint = 'wss://chrome.browserless.io/playwright',
 } = input;
 
 log.info('Starting Actor 1: Nigerian Creator Inspiration Commenter Scraper', {
@@ -109,8 +109,12 @@ const cleanBrowserlessKey = (browserlessApiKey || process.env.BROWSERLESS_API_KE
 
 if (cleanBrowserlessKey) {
     try {
-        const wsEndpoint = `${browserlessEndpoint}?token=${cleanBrowserlessKey}&timeout=600000&stealth=true`;
-        log.info(`Attempting Browserless connection...`, { endpoint: browserlessEndpoint });
+        let baseEndpoint = (browserlessEndpoint || 'wss://chrome.browserless.io/playwright').trim();
+        if (baseEndpoint.endsWith('/')) baseEndpoint = baseEndpoint.slice(0, -1);
+        if (!baseEndpoint.includes('/playwright')) baseEndpoint += '/playwright';
+
+        const wsEndpoint = `${baseEndpoint}?token=${cleanBrowserlessKey}&timeout=600000&stealth=true`;
+        log.info(`Attempting Browserless connection...`, { endpoint: wsEndpoint.replace(cleanBrowserlessKey, '[REDACTED]') });
         browser = await chromium.connectOverCDP(wsEndpoint);
         log.info('✓ Connected to Browserless. Watch live at: https://chrome.browserless.io/sessions');
         context = await browser.newContext({

@@ -1,44 +1,57 @@
-2026-09-11T23:50:25.302Z ACTOR: Pulling container image of build HUcSF9EIoL0KdSMbA from registry.
-2026-09-11T23:50:43.744Z ACTOR: Creating container.
-2026-09-11T23:50:43.827Z ACTOR: Starting container.
-2026-09-11T23:50:43.828Z ACTOR: Running under "LIMITED_PERMISSIONS".
-2026-09-11T23:50:43.940Z Running on architecture: x86_64
-2026-09-11T23:50:43.941Z Will run command: xvfb-run -a -s "-ac -screen 0 1920x1080x24+32 -nolisten tcp" /bin/bash -o pipefail -c npm start
-2026-09-11T23:50:44.799Z
-2026-09-11T23:50:44.800Z > actor-1-commenter-scraper@1.0.0 start
-2026-09-11T23:50:44.801Z > node src/main.js
-2026-09-11T23:50:44.802Z
-2026-09-11T23:50:45.799Z INFO  System info {"apifyVersion":"3.7.2","apifyClientVersion":"2.25.0","crawleeVersion":"3.18.1","osType":"Linux","nodeVersion":"v22.23.2"}
-2026-09-11T23:50:45.954Z INFO  Starting Actor 1: Nigerian Creator Inspiration Commenter Scraper {"maxPosts":15,"verificationFilter":"verified","delayBetweenScrolls":1800}
-2026-09-11T23:50:45.959Z INFO  Supabase client initialized successfully.
-2026-09-11T23:50:45.960Z INFO  Connecting to Browserless... {"endpoint":"wss://production-sfo.browserless.io?token=2VF5zeHqJjrhVexdc6d8171efdaf32d846fc4b820b4515dec"}
-2026-09-11T23:50:46.325Z node:internal/modules/run_main:123
-2026-09-11T23:50:46.326Z     triggerUncaughtException(
-2026-09-11T23:50:46.326Z     ^
-2026-09-11T23:50:46.327Z
-2026-09-11T23:50:46.328Z browserType.connectOverCDP: WebSocket error: wss://production-sfo.browserless.io/ 401 Unauthorized
-2026-09-11T23:50:46.328Z
-2026-09-11T23:50:46.329Z Invalid API key. Please check your API key and try again. (requestId: 274ccbe3-0bc1-40d5-b47c-5e3c0d53538a)
-2026-09-11T23:50:46.330Z Call log:
-2026-09-11T23:50:46.330Z   - <ws connecting> wss://production-sfo.browserless.io/
-2026-09-11T23:50:46.331Z   - <ws unexpected response> wss://production-sfo.browserless.io/ 401 Unauthorized
-2026-09-11T23:50:46.332Z
-2026-09-11T23:50:46.333Z Invalid API key. Please check your API key and try again. (requestId: 274ccbe3-0bc1-40d5-b47c-5e3c0d53538a)
-2026-09-11T23:50:46.334Z   - <ws error> wss://production-sfo.browserless.io/ error WebSocket was closed before the connection was established
-2026-09-11T23:50:46.334Z   - <ws connect error> wss://production-sfo.browserless.io/ WebSocket was closed before the connection was established
-2026-09-11T23:50:46.336Z   - <ws disconnected> wss://production-sfo.browserless.io/ code=1006 reason=
-2026-09-11T23:50:46.337Z
-2026-09-11T23:50:46.338Z     at /home/myuser/src/main.js:113:30 {
-2026-09-11T23:50:46.338Z   log: [
-2026-09-11T23:50:46.339Z     '  - <ws connecting> wss://production-sfo.browserless.io/',
-2026-09-11T23:50:46.340Z     '  - <ws unexpected response> wss://production-sfo.browserless.io/ 401 Unauthorized\n' +
-2026-09-11T23:50:46.341Z       '\r\n' +
-2026-09-11T23:50:46.342Z       'Invalid API key. Please check your API key and try again. (requestId: 274ccbe3-0bc1-40d5-b47c-5e3c0d53538a)',
-2026-09-11T23:50:46.343Z     '  - <ws error> wss://production-sfo.browserless.io/ error WebSocket was closed before the connection was established',
-2026-09-11T23:50:46.343Z     '  - <ws connect error> wss://production-sfo.browserless.io/ WebSocket was closed before the connection was established',
-2026-09-11T23:50:46.344Z     '  - <ws disconnected> wss://production-sfo.browserless.io/ code=1006 reason='
-2026-09-11T23:50:46.345Z   ],
-2026-09-11T23:50:46.346Z   name: 'Error'
-2026-09-11T23:50:46.347Z }
-2026-09-11T23:50:46.347Z
-2026-09-11T23:50:46.348Z Node.js v22.23.2
+The error is **not caused by missing your Browserless token**—it is caused by **how the Browserless URL is constructed in `src/main.js**`.
+
+---
+
+### Where the Problem Is Coming From
+
+Look at line 113 of your code:
+
+```log
+2026-09-11T23:58:21.192Z browserType.connectOverCDP: Unexpected status 400 when connecting to https://production-sfo.browserless.io/json/version/?token=...
+2026-09-11T23:58:21.198Z at /home/myuser/src/main.js:113:30
+
+```
+
+1. **Playwright `connectOverCDP` does an internal HTTP fetch to `/json/version**` when passed an `https://` base URL.
+2. When Browserless receives an HTTP `GET /json/version?token=...&stealth=true` request on its SFO production region, it rejects parameters like `&stealth=true` on the standard DevTools HTTP endpoint, returning a **`400 Bad Request`**.
+3. Because Playwright got a `400 Bad Request` instead of JSON metadata, the execution crashes.
+
+---
+
+### How to Fix It in `src/main.js`
+
+Go to **`src/main.js` around line 110–113** where `chromium.connectOverCDP(...)` or `browserType.connectOverCDP(...)` is called.
+
+#### Option A: Direct WebSocket connection (Recommended)
+
+Change your connection string so Playwright connects directly via WebSockets (`wss://`) instead of HTTP (`https://`).
+
+```javascript
+// Replace whatever endpoint logic you have around line 110 with:
+const token = process.env.BROWSERLESS_TOKEN || input.browserlessToken;
+const endpoint = `wss://production-sfo.browserless.io/playwright?token=${token}&stealth=true`;
+
+const browser = await chromium.connectOverCDP(endpoint);
+
+```
+
+#### Option B: Clean the HTTP URL
+
+If you are passing the base URL as an input or environment variable, make sure the string passed into `connectOverCDP` uses the `/playwright` route path rather than the root domain:
+
+```javascript
+// Correct Browserless Playwright WebSocket path:
+const endpoint = `wss://production-sfo.browserless.io/playwright?token=${YOUR_TOKEN}`;
+
+```
+
+---
+
+### What to put in your Apify Input / Environment Variables
+
+In your Apify Actor input or Envs:
+
+* **Browserless Endpoint / Host**: `wss://production-sfo.browserless.io/playwright` (or `wss://chrome.browserless.io/playwright`)
+* **Browserless Token**: `2VF5zeHqJjrhVex...`
+
+Once `src/main.js` uses `wss://.../playwright`, Playwright bypasses the HTTP `/json/version` lookup and establishes the browser connection directly.
