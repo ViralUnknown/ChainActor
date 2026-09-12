@@ -1,57 +1,65 @@
-The error is **not caused by missing your Browserless token**—it is caused by **how the Browserless URL is constructed in `src/main.js**`.
+2026-09-12T00:21:28.478Z ACTOR: Pulling container image of build fuJHxFvLUpr0GciyU from registry.
+2026-09-12T00:21:46.950Z ACTOR: Creating container.
+2026-09-12T00:21:47.018Z ACTOR: Starting container.
+2026-09-12T00:21:47.020Z ACTOR: Running under "LIMITED_PERMISSIONS".
+2026-09-12T00:21:47.091Z Running on architecture: x86_64
+2026-09-12T00:21:47.092Z Will run command: xvfb-run -a -s "-ac -screen 0 1920x1080x24+32 -nolisten tcp" /bin/bash -o pipefail -c npm start
+2026-09-12T00:21:47.411Z
+2026-09-12T00:21:47.413Z > actor-1-commenter-scraper@1.0.0 start
+2026-09-12T00:21:47.415Z > node src/main.js
+2026-09-12T00:21:47.417Z
+2026-09-12T00:21:48.207Z INFO  System info {"apifyVersion":"3.7.2","apifyClientVersion":"2.25.0","crawleeVersion":"3.18.1","osType":"Linux","nodeVersion":"v22.23.2"}
+2026-09-12T00:21:48.306Z INFO  Starting Actor 1: Nigerian Creator Inspiration Commenter Scraper {"maxPosts":15,"verificationFilter":"verified","delayBetweenScrolls":1800}
+2026-09-12T00:21:48.311Z INFO  Supabase client initialized successfully.
+2026-09-12T00:21:48.313Z INFO  Attempting Browserless connection... {"endpoint":"wss://production-sfo.browserless.io/playwright?token=[REDACTED]&timeout=600000&stealth=true"}
+2026-09-12T00:21:48.663Z WARN  Browserless connection failed (browserType.connectOverCDP: WebSocket error: wss://production-sfo.browserless.io/playwright 400 Bad Request
+2026-09-12T00:21:48.665Z
+2026-09-12T00:21:48.666Z The 'timeout' value must be a whole number of milliseconds between 1 and 120,000 (your plan's maximum session time, 2 minutes). Received "600000". Use a smaller timeout, or upgrade your plan for a longer session. (requestId: 210c217a-b994-4029-b260-d09b7684c087)
+2026-09-12T00:21:48.671Z Call log:
+2026-09-12T00:21:48.673Z   - <ws connecting> wss://production-sfo.browserless.io/playwright
+2026-09-12T00:21:48.675Z   - <ws unexpected response> wss://production-sfo.browserless.io/playwright 400 Bad Request
+2026-09-12T00:21:48.676Z
+2026-09-12T00:21:48.678Z The 'timeout' value must be a whole number of milliseconds between 1 and 120,000 (your plan's maximum session time, 2 minutes). Received "600000". Use a smaller timeout, or upgrade your plan for a longer session. (requestId: 210c217a-b994-4029-b260-d09b7684c087)
+2026-09-12T00:21:48.679Z   - <ws error> wss://production-sfo.browserless.io/playwright error WebSocket was closed before the connection was established
+2026-09-12T00:21:48.681Z   - <ws connect error> wss://production-sfo.browserless.io/playwright WebSocket was closed before the connection was established
+2026-09-12T00:21:48.682Z   - <ws disconnected> wss://production-sfo.browserless.io/playwright code=1006 reason=
+2026-09-12T00:21:48.684Z ). Falling back to container local Playwright Chrome...
+2026-09-12T00:21:48.686Z INFO  Launching local Playwright Chrome in container...
+2026-09-12T00:21:48.839Z INFO  Injected 18 cookies into browser context.
+2026-09-12T00:21:49.660Z INFO  Found 8 existing post IDs in Supabase (will skip these).
+2026-09-12T00:21:49.689Z INFO  Navigating to: https://x.com/i/jf/creators/inspiration/top_posts
+2026-09-12T00:21:54.185Z INFO  Checking if Nigeria country filter is active...
+2026-09-12T00:21:54.191Z INFO  Nigeria filter already active.
+2026-09-12T00:21:54.192Z INFO  Setting sort to Most Replies...
+2026-09-12T00:21:57.226Z INFO  "Most Replies" sort applied.
+2026-09-12T00:21:57.231Z INFO  [Post 2098271125742444730] Opening: https://x.com/quebecween/status/2098271125742444730
+2026-09-12T00:22:02.463Z ACTOR: The Actor run was aborted by the user.
+
+
+The previous URL routing fix worked—Browserless reached the WebSocket endpoint cleanly—but it rejected the request because of the **`timeout=600000`** parameter in your connection string.
+
+Your Browserless plan caps maximum session timeouts at **120,000 ms (2 minutes)**, so requesting `600000` (10 minutes) triggers a `400 Bad Request`.
 
 ---
 
-### Where the Problem Is Coming From
+**The Fix in `src/main.js**`
 
-Look at line 113 of your code:
-
-```log
-2026-09-11T23:58:21.192Z browserType.connectOverCDP: Unexpected status 400 when connecting to https://production-sfo.browserless.io/json/version/?token=...
-2026-09-11T23:58:21.198Z at /home/myuser/src/main.js:113:30
-
-```
-
-1. **Playwright `connectOverCDP` does an internal HTTP fetch to `/json/version**` when passed an `https://` base URL.
-2. When Browserless receives an HTTP `GET /json/version?token=...&stealth=true` request on its SFO production region, it rejects parameters like `&stealth=true` on the standard DevTools HTTP endpoint, returning a **`400 Bad Request`**.
-3. Because Playwright got a `400 Bad Request` instead of JSON metadata, the execution crashes.
-
----
-
-### How to Fix It in `src/main.js`
-
-Go to **`src/main.js` around line 110–113** where `chromium.connectOverCDP(...)` or `browserType.connectOverCDP(...)` is called.
-
-#### Option A: Direct WebSocket connection (Recommended)
-
-Change your connection string so Playwright connects directly via WebSockets (`wss://`) instead of HTTP (`https://`).
+Find where your Browserless URL string is constructed and lower or remove the `timeout` parameter:
 
 ```javascript
-// Replace whatever endpoint logic you have around line 110 with:
-const token = process.env.BROWSERLESS_TOKEN || input.browserlessToken;
+// Change timeout to 120000 (2 minutes) to match your Browserless plan limit:
+const endpoint = `wss://production-sfo.browserless.io/playwright?token=${token}&timeout=120000&stealth=true`;
+
+// OR omit the timeout parameter entirely so Browserless uses your plan's maximum default:
 const endpoint = `wss://production-sfo.browserless.io/playwright?token=${token}&stealth=true`;
 
-const browser = await chromium.connectOverCDP(endpoint);
-
-```
-
-#### Option B: Clean the HTTP URL
-
-If you are passing the base URL as an input or environment variable, make sure the string passed into `connectOverCDP` uses the `/playwright` route path rather than the root domain:
-
-```javascript
-// Correct Browserless Playwright WebSocket path:
-const endpoint = `wss://production-sfo.browserless.io/playwright?token=${YOUR_TOKEN}`;
-
 ```
 
 ---
 
-### What to put in your Apify Input / Environment Variables
+**Why this resolves it:**
 
-In your Apify Actor input or Envs:
+* **`600000`** = 10 minutes (rejected by Browserless plan policy).
+* **`120000`** = 2 minutes (accepted max limit for standard/free plans).
 
-* **Browserless Endpoint / Host**: `wss://production-sfo.browserless.io/playwright` (or `wss://chrome.browserless.io/playwright`)
-* **Browserless Token**: `2VF5zeHqJjrhVex...`
-
-Once `src/main.js` uses `wss://.../playwright`, Playwright bypasses the HTTP `/json/version` lookup and establishes the browser connection directly.
+Notice in your log that your code's fallback mechanism already successfully logged into Supabase and reached `x.com` using container Chrome. Updating this single value from `600000` to `120000` (or removing it) will allow the Browserless connection to connect directly without throwing a warning.

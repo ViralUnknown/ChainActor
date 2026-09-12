@@ -113,7 +113,7 @@ if (cleanBrowserlessKey) {
         if (baseEndpoint.endsWith('/')) baseEndpoint = baseEndpoint.slice(0, -1);
         if (!baseEndpoint.includes('/playwright')) baseEndpoint += '/playwright';
 
-        const wsEndpoint = `${baseEndpoint}?token=${cleanBrowserlessKey}&timeout=600000&stealth=true`;
+        const wsEndpoint = `${baseEndpoint}?token=${cleanBrowserlessKey}&timeout=120000&stealth=true`;
         log.info(`Attempting Browserless connection...`, { endpoint: wsEndpoint.replace(cleanBrowserlessKey, '[REDACTED]') });
         browser = await chromium.connectOverCDP(wsEndpoint);
         log.info('✓ Connected to Browserless. Watch live at: https://chrome.browserless.io/sessions');
